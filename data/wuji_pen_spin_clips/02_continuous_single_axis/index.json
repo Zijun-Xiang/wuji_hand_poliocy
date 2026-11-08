@@ -1,0 +1,29 @@
+{
+  "schema": "wuji_pen_spin_clips:1",
+  "group_id": "02_continuous_single_axis",
+  "group_name": "continuous single-axis rotation",
+  "frame_dt": 0.02,
+  "clip_count": 4,
+  "clips": [
+    {
+      "clip_id": "clip_001",
+      "file": "clip_001.npz",
+      "sha256": "041b5bb58400f0ca1ab4d0ecf54a6e9e39211b49fc7cc01f3489eebb378db4ab"
+    },
+    {
+      "clip_id": "clip_002",
+      "file": "clip_002.npz",
+      "sha256": "a4f27add2002036efea25fe1854f731ce34a53e3eb84d6cdd4c580775423adba"
+    },
+    {
+      "clip_id": "clip_003",
+      "file": "clip_003.npz",
+      "sha256": "5f9ef7d6b6a9f7abff1c487db682f84776e219b29976baef78c57a55f4141941"
+    },
+    {
+      "clip_id": "clip_004",
+      "file": "clip_004.npz",
+      "sha256": "235b02f5b4549ca278777fd7d13de175861093c938534ebdcbe2b1fab62fbd7a"
+    }
+  ]
+}

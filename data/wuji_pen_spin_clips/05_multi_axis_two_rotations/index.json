@@ -1,0 +1,44 @@
+{
+  "schema": "wuji_pen_spin_clips:1",
+  "group_id": "05_multi_axis_two_rotations",
+  "group_name": "multi-axis two rotations",
+  "frame_dt": 0.02,
+  "clip_count": 7,
+  "clips": [
+    {
+      "clip_id": "clip_001",
+      "file": "clip_001.npz",
+      "sha256": "d67121a66542ba35d87c035947e471f66fa644dc4a29b057805a9c453d872b52"
+    },
+    {
+      "clip_id": "clip_002",
+      "file": "clip_002.npz",
+      "sha256": "ff94372da57471da8d897357be78dd2ae7cca9a4e93f7d2c9c9544ffe3246cf0"
+    },
+    {
+      "clip_id": "clip_003",
+      "file": "clip_003.npz",
+      "sha256": "10ba06393b81623289a3d3e7b2d620a9561a14a73f2c92e940cce05bb3028cb7"
+    },
+    {
+      "clip_id": "clip_004",
+      "file": "clip_004.npz",
+      "sha256": "e8374009ca672a5236df845fec9db07afd3bac3fa4c8227272b52f8ecc5f5114"
+    },
+    {
+      "clip_id": "clip_005",
+      "file": "clip_005.npz",
+      "sha256": "1010c358569e8278f692323dc4158c26ba3c2e09e0fb23e6275745ee9963f9e3"
+    },
+    {
+      "clip_id": "clip_006",
+      "file": "clip_006.npz",
+      "sha256": "51c824c6c6e0cb4c8cdf724a6c4487c06d4370e36a328bd805abc8e3a8a9a9a0"
+    },
+    {
+      "clip_id": "clip_007",
+      "file": "clip_007.npz",
+      "sha256": "17f4180a85f282315d7372fb4eaabe93aab148fee64428a14286fba7b220fed7"
+    }
+  ]
+}

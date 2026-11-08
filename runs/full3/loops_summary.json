@@ -1,0 +1,204 @@
+{
+  "n_loops": 151,
+  "largest_scc": 15215,
+  "n_scc_gt1": 21,
+  "verification": [
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 820,
+      "summary": "ok: 820 ticks, pen pos err mean 1.2 cm (final 1.1), axis err mean 10 deg, joint err mean 0.609 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 827,
+      "summary": "ok: 827 ticks, pen pos err mean 1.3 cm (final 1.1), axis err mean 13 deg, joint err mean 0.612 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 828,
+      "summary": "ok: 828 ticks, pen pos err mean 1.2 cm (final 1.0), axis err mean 10 deg, joint err mean 0.609 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 831,
+      "summary": "ok: 831 ticks, pen pos err mean 1.3 cm (final 0.9), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 829,
+      "summary": "ok: 829 ticks, pen pos err mean 1.2 cm (final 1.0), axis err mean 10 deg, joint err mean 0.609 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 837,
+      "summary": "ok: 837 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.616 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 835,
+      "summary": "ok: 835 ticks, pen pos err mean 1.3 cm (final 1.0), axis err mean 12 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.4 cm (final 1.1), axis err mean 13 deg, joint err mean 0.609 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 842,
+      "summary": "ok: 842 ticks, pen pos err mean 1.4 cm (final 1.0), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 841,
+      "summary": "ok: 841 ticks, pen pos err mean 1.5 cm (final 1.1), axis err mean 13 deg, joint err mean 0.610 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 849,
+      "summary": "ok: 849 ticks, pen pos err mean 1.4 cm (final 1.0), axis err mean 13 deg, joint err mean 0.609 rad"
+    },
+    {
+      "completed": true,
+      "survived_fraction": 1.0,
+      "ticks": 857,
+      "summary": "ok: 857 ticks, pen pos err mean 1.5 cm (final 1.1), axis err mean 14 deg, joint err mean 0.614 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.3028169014084507,
+      "ticks": 387,
+      "summary": "FAILED@386 (pen_axis): 387 ticks, pen pos err mean 1.5 cm (final 3.8), axis err mean 17 deg, joint err mean 0.588 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.2914375490966222,
+      "ticks": 371,
+      "summary": "FAILED@370 (pen_axis): 371 ticks, pen pos err mean 1.5 cm (final 3.9), axis err mean 18 deg, joint err mean 0.583 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.29044684129429893,
+      "ticks": 377,
+      "summary": "FAILED@376 (pen_axis): 377 ticks, pen pos err mean 1.5 cm (final 3.6), axis err mean 18 deg, joint err mean 0.585 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.19953775038520802,
+      "ticks": 259,
+      "summary": "FAILED@258 (pen_axis): 259 ticks, pen pos err mean 1.5 cm (final 3.7), axis err mean 13 deg, joint err mean 0.618 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.1983663943990665,
+      "ticks": 170,
+      "summary": "FAILED@169 (pen_axis): 170 ticks, pen pos err mean 1.9 cm (final 1.7), axis err mean 17 deg, joint err mean 0.644 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.1956689868522815,
+      "ticks": 253,
+      "summary": "FAILED@252 (pen_axis): 253 ticks, pen pos err mean 1.6 cm (final 3.9), axis err mean 13 deg, joint err mean 0.616 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.1955177743431221,
+      "ticks": 253,
+      "summary": "FAILED@252 (pen_axis): 253 ticks, pen pos err mean 1.6 cm (final 3.9), axis err mean 13 deg, joint err mean 0.616 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.19415204678362574,
+      "ticks": 166,
+      "summary": "FAILED@165 (pen_axis): 166 ticks, pen pos err mean 1.9 cm (final 1.7), axis err mean 17 deg, joint err mean 0.648 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.19279907084785133,
+      "ticks": 166,
+      "summary": "FAILED@165 (pen_axis): 166 ticks, pen pos err mean 1.9 cm (final 1.7), axis err mean 17 deg, joint err mean 0.648 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.1925754060324826,
+      "ticks": 166,
+      "summary": "FAILED@165 (pen_axis): 166 ticks, pen pos err mean 1.9 cm (final 1.7), axis err mean 17 deg, joint err mean 0.648 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.16281895504252733,
+      "ticks": 134,
+      "summary": "FAILED@133 (pen_axis): 134 ticks, pen pos err mean 2.0 cm (final 1.8), axis err mean 18 deg, joint err mean 0.668 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.16281895504252733,
+      "ticks": 134,
+      "summary": "FAILED@133 (pen_axis): 134 ticks, pen pos err mean 2.0 cm (final 1.8), axis err mean 18 deg, joint err mean 0.668 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.16262135922330098,
+      "ticks": 134,
+      "summary": "FAILED@133 (pen_axis): 134 ticks, pen pos err mean 2.0 cm (final 1.8), axis err mean 18 deg, joint err mean 0.668 rad"
+    },
+    {
+      "completed": false,
+      "survived_fraction": 0.1614457831325301,
+      "ticks": 134,
+      "summary": "FAILED@133 (pen_axis): 134 ticks, pen pos err mean 2.0 cm (final 1.8), axis err mean 18 deg, joint err mean 0.668 rad"
+    }
+  ],
+  "verify_rounds": 5,
+  "jumps": {
+    "candidate": 56923,
+    "kinematic_fail": 5403,
+    "sim_rejected": 1584,
+    "validated": 38624
+  },
+  "best": {
+    "frames": 752,
+    "jumps": 9,
+    "rotation_deg": 2359.963761800727,
+    "episodes": [
+      "02_continuous_single_axis/clip_003",
+      "03_continuous_multi_axis/clip_002",
+      "03_continuous_multi_axis/clip_003"
+    ]
+  }
+}

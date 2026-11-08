@@ -1,0 +1,11 @@
+{
+  "control_mode": "reference_residual",
+  "action_scale": 0.5,
+  "action_residual_clip": [
+    -0.6,
+    0.6
+  ],
+  "action_ema_alpha": 0.5,
+  "ctrl_dt": 0.02,
+  "history_len": 0
+}

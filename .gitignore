@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
+runs/*/bc/dataset.npz
+runs/*/validate.log
+runs/*/train_bc.log
+runs/*/export/
+runs/*/results_page/
+# graphs are re-buildable in seconds; keep only the fully validated one
+runs/*/graph/*.npz
+!runs/full3/graph/graph.npz

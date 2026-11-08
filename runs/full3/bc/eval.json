@@ -1,0 +1,11 @@
+{
+  "summary": "20 starts: survived mean 3.58s (min 1.34s), pen rotation mean 811 deg, drop rate 55%, jumps taken mean 0.0, demos visited mean 1.0",
+  "samples": 30323,
+  "walks": 200,
+  "epochs": 40,
+  "hidden": [
+    512,
+    512,
+    256
+  ]
+}

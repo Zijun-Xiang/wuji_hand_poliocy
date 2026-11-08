@@ -1,0 +1,37 @@
+{
+  "seconds": 2.399934768676758,
+  "num_nodes": 25885,
+  "num_episodes": 40,
+  "feature_dim": 67,
+  "blocks": [
+    "qpos",
+    "qvel",
+    "pen_pos",
+    "pen_axis",
+    "pen_linvel",
+    "pen_angvel",
+    "fingertips"
+  ],
+  "block_weights": {
+    "qpos": 1.0,
+    "qvel": 0.4,
+    "pen_pos": 2.0,
+    "pen_axis": 2.0,
+    "pen_rot6d": 0.0,
+    "pen_linvel": 0.4,
+    "pen_angvel": 0.4,
+    "fingertips": 1.0,
+    "links": 0.0
+  },
+  "step_unit": 0.5653595328330994,
+  "k": 8,
+  "window": 5,
+  "max_cost": 4.0,
+  "jumps": {
+    "candidate": 9320,
+    "kinematic_fail": 1488,
+    "sim_rejected": 0,
+    "validated": 0
+  },
+  "max_joint_vel": 5.810183683689825
+}

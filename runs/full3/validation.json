@@ -1,0 +1,23 @@
+{
+  "tested": 482,
+  "validated": 99,
+  "rejected": 383,
+  "reasons": {
+    "ok": 99,
+    "end_pos_err": 104,
+    "terminated:pen_position": 244,
+    "end_axis_err": 5,
+    "terminated:pen_axis": 30
+  },
+  "seconds": 20.545623540878296,
+  "controller": "onnx",
+  "config": {
+    "controller": "onnx",
+    "blend_frames": null,
+    "follow_frames": 50,
+    "success_pos_m": 0.03,
+    "success_axis_deg": 29.999999999999996,
+    "relative": true,
+    "relative_factor": 1.5
+  }
+}

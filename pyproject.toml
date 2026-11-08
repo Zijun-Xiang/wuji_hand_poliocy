@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "penspin-graph"
+version = "0.1.0"
+description = "Motion-graph planning for dexterous pen spinning on the Wuji Hand 2: embed every demo frame, stitch episodes with sim-validated transitions, find executable loops, distil a policy."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [{ name = "Zijun Xiang" }]
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "scikit-learn>=1.3",
+  "mujoco>=3.1",
+  "onnxruntime>=1.16",
+]
+
+[project.optional-dependencies]
+bc = ["torch>=2.1", "onnx>=1.15"]
+viz = ["matplotlib>=3.7", "imageio>=2.31", "imageio-ffmpeg>=0.4"]
+dev = ["pytest>=7", "torch>=2.1", "onnx>=1.15", "matplotlib>=3.7", "imageio>=2.31", "imageio-ffmpeg>=0.4"]
+
+[project.scripts]
+penspin-graph = "penspin_graph.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

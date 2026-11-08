@@ -1,0 +1,167 @@
+{
+  "summary": "20 starts: survived mean 10.00s (min 10.00s), pen rotation mean 305 deg, drop rate 0%, jumps taken mean 1.4, demos visited mean 3.0",
+  "controller": "onnx",
+  "horizon": 500,
+  "episodes": [
+    {
+      "start_label": "05_multi_axis_two_rotations/clip_003@140",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 6.073405379967832,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 3
+    },
+    {
+      "start_label": "04_stable_grasp_rotation/clip_001@149",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 6.0228930108224965,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_006@867",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 0.909900176007666,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "02_continuous_single_axis/clip_004@409",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 7.310785551461778,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 3
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_001@548",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 3.938138682865526,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "01_single_axis/clip_003@239",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 1.4707119854692352,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "01_single_axis/clip_006@45",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 9.748435144338453,
+      "dropped": false,
+      "jumps_taken": 8,
+      "episodes_visited": 8
+    },
+    {
+      "start_label": "01_single_axis/clip_002@58",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 14.941239026506876,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 7
+    },
+    {
+      "start_label": "02_continuous_single_axis/clip_001@549",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 6.012102717670294,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 6
+    },
+    {
+      "start_label": "05_multi_axis_two_rotations/clip_001@358",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 2.4713347024990595,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 2
+    },
+    {
+      "start_label": "04_stable_grasp_rotation/clip_001@472",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 2.5643342936909903,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "05_multi_axis_two_rotations/clip_005@239",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 4.141924794803901,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 3
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_006@673",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 0.8813284156121826,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_009@354",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 8.618385182912546,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "05_multi_axis_two_rotations/clip_007@114",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 7.261358679649544,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 3
+    },
+    {
+      "start_label": "04_stable_grasp_rotation/clip_006@258",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 3.412016131739527,
+      "dropped": false,
+      "jumps_taken": 20,
+      "episodes_visited": 7
+    },
+    {
+      "start_label": "04_stable_grasp_rotation/clip_001@28",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 1.7320671624469552,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_007@735",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 15.013503222723141,
+      "dropped": false,
+      "jumps_taken": 1,
+      "episodes_visited": 8
+    },
+    {
+      "start_label": "03_continuous_multi_axis/clip_008@141",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 2.2807104865361274,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    },
+    {
+      "start_label": "05_multi_axis_two_rotations/clip_005@817",
+      "ticks_survived": 500,
+      "pen_rotation_rad": 1.5587399770598316,
+      "dropped": false,
+      "jumps_taken": 0,
+      "episodes_visited": 1
+    }
+  ]
+}

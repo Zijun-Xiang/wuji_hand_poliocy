@@ -1,0 +1,59 @@
+{
+  "schema": "wuji_pen_spin_clips:1",
+  "group_id": "01_single_axis",
+  "group_name": "single-axis rotation",
+  "frame_dt": 0.02,
+  "clip_count": 10,
+  "clips": [
+    {
+      "clip_id": "clip_001",
+      "file": "clip_001.npz",
+      "sha256": "ca0b9b5dfc5de0170538bb13e95c56d5c2f20853e22b8405fe4b6853180b8348"
+    },
+    {
+      "clip_id": "clip_002",
+      "file": "clip_002.npz",
+      "sha256": "f9d0e4495dc664c523aec9ed0a098038267763f6fd09ffef8e31a2651abd8ee9"
+    },
+    {
+      "clip_id": "clip_003",
+      "file": "clip_003.npz",
+      "sha256": "148da96fbb615ec36e6792af8966fbb5c845d386537541be3598717c4a21fa31"
+    },
+    {
+      "clip_id": "clip_004",
+      "file": "clip_004.npz",
+      "sha256": "a08449835d649c46665ea61066b2fd06f14edf6d04b51dc78cb424327885ad8e"
+    },
+    {
+      "clip_id": "clip_005",
+      "file": "clip_005.npz",
+      "sha256": "c466d76173d65b8e3e6911203b4427f1420efadc291f05ed6695f937ac1a20ef"
+    },
+    {
+      "clip_id": "clip_006",
+      "file": "clip_006.npz",
+      "sha256": "db00f018be7c1b01de69d4b221e5276b263c001d67f7f1d0805f86882c5d4e0b"
+    },
+    {
+      "clip_id": "clip_007",
+      "file": "clip_007.npz",
+      "sha256": "b7815d6635398d29d5604bf7333fdda3bdedec0e7c41e8e1afa21ca4f0577a12"
+    },
+    {
+      "clip_id": "clip_008",
+      "file": "clip_008.npz",
+      "sha256": "d8d2439467ce6bf82d27f6c821a12d9871361d6374c060b5939f8674c388b409"
+    },
+    {
+      "clip_id": "clip_009",
+      "file": "clip_009.npz",
+      "sha256": "3543e3407ce6e3920fb78e53dce6e1f6edc92da518f874e64538e9a831dcd3e6"
+    },
+    {
+      "clip_id": "clip_010",
+      "file": "clip_010.npz",
+      "sha256": "d67d2c803666c557f32bd00892ba3fb81ff470e87bab99f5ae8ee546534a5e32"
+    }
+  ]
+}

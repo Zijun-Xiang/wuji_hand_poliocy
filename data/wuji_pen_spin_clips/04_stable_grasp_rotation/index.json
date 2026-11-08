@@ -1,0 +1,59 @@
+{
+  "schema": "wuji_pen_spin_clips:1",
+  "group_id": "04_stable_grasp_rotation",
+  "group_name": "stable grasp rotation",
+  "frame_dt": 0.02,
+  "clip_count": 10,
+  "clips": [
+    {
+      "clip_id": "clip_001",
+      "file": "clip_001.npz",
+      "sha256": "6d0da147900bb108cab0d010690b0ab68cb018105b3c9bb1a4340c1c8c95986c"
+    },
+    {
+      "clip_id": "clip_002",
+      "file": "clip_002.npz",
+      "sha256": "8b39a791f422ba25e1c68b0dc1eab04fee3b18fbfa38b93e59de2b34ce1ce26c"
+    },
+    {
+      "clip_id": "clip_003",
+      "file": "clip_003.npz",
+      "sha256": "cae076bf92fe4a4e08d0fe183896d4e1cbe38bc62986cb9487a162be6017fa2a"
+    },
+    {
+      "clip_id": "clip_004",
+      "file": "clip_004.npz",
+      "sha256": "43875a844126f535291157d62e061d4610afac8ecd4b1347ed7613ed02e65397"
+    },
+    {
+      "clip_id": "clip_005",
+      "file": "clip_005.npz",
+      "sha256": "eacc14c98f9814c9d7b0441a3574a3ec738c5f71f8d57bcbd366a3eb13c5c116"
+    },
+    {
+      "clip_id": "clip_006",
+      "file": "clip_006.npz",
+      "sha256": "1c86c0cb9c06190acc0cce890928c863a170af00f2babc6d229c8346770e3143"
+    },
+    {
+      "clip_id": "clip_007",
+      "file": "clip_007.npz",
+      "sha256": "cf2e7e2eae38d1adcfbf174c51524d83ecb6610750286d8d6be1c1c7b58d73a2"
+    },
+    {
+      "clip_id": "clip_008",
+      "file": "clip_008.npz",
+      "sha256": "6bbf190c68ddc71fb2eb8bc316f52b271515d0ac8dacd67fee75638f11f3c14c"
+    },
+    {
+      "clip_id": "clip_009",
+      "file": "clip_009.npz",
+      "sha256": "d1a1d94d23890c2d96be2fd581d66bf4cf318edd9baa6d0c2e895ee1e867c00e"
+    },
+    {
+      "clip_id": "clip_010",
+      "file": "clip_010.npz",
+      "sha256": "c8d2e8d2c2e5ba51fc76c691716107c8aef5ab6cbe63b9f11f2472d0c3f22b0b"
+    }
+  ]
+}
