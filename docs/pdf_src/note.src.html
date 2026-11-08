@@ -90,7 +90,7 @@ ul { margin: 4px 0; padding-left: 18px; } li { margin: 1px 0; }
   <div class="box-title">🎯 Where we will end up</div>
   <ol style="margin:2px 0 4px; padding-left:18px">
     <li>Every frame becomes a point: $\bff_t=\mathbf w\odot(\bx_t-\boldsymbol\mu)/\boldsymbol\sigma\in\mathbb R^{67}$.</li>
-    <li>Frames are linked inside each clip. New jumps $u\to v$ are added when $C(u,v)=\frac1\delta\sum_{j}\lambda_j\lVert\bff_{u+1+j}-\bff_{v+j}\rVert\le 6$, or when a clip's final hold can blend into another clip's start.</li>
+    <li>Frames are linked inside each clip. New jumps $u\to v$ are added when <span style="white-space:nowrap">$C(u,v)=\frac1\delta\sum_{j}\lambda_j\lVert\bff_{u+1+j}-\bff_{v+j}\rVert\le 6$</span>, or when a clip's final hold can blend into another clip's start.</li>
     <li>A jump is kept only if it is physically gentle (blend $b=\clip(\lceil\Delta q_{\max}/(\omega_{\max}\Delta t)-1\rceil,2,10)$) and if Wuji's own policy, $\bq^{\text{target}}=\bq^{\text{ref}}+\operatorname{EMA}(\clip(0.5\,\ba))$, executes it in simulation about as well as the original clip.</li>
     <li>38,624 jumps pass. They connect 15,215 frames (59%) into a core the hand never has to leave.</li>
     <li>From any state: nearest frame $v^*=\arg\min_v\lVert\bff(s)-\bff_v\rVert$, shortest path into a verified loop, then circle it.</li>
