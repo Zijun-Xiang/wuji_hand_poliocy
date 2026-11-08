@@ -4,7 +4,7 @@
 
 * **What was built.** Every frame of Wuji's 40 pen-spinning demos is a point in a 67-D space. Frames are chained inside each demo, and **38,624 transitions (跳转)** that were tested in simulation link different demos and different moments of the same demo. A controller finds the nearest point to the current hand state, plans into a verified **loop (环路)**, and circles it with Wuji's own tracking policy doing the low-level control.
 * **How it differs from the original.** Wuji's original pipeline can only play one recorded clip from its first frame until the clip ends. Our version can start from any state, switch between demos, and spin indefinitely.
-* **Gains, all in simulation.** Continuous spinning went from **21.8 s to 84.7 s (3.9x)**. Pen-shaft rotation per run went from **1,584° to 8,709° (5.5x)**. The rotation speed of the best loop is **114°/s**, while the clips average 53°/s. From random states, a 30 s test gives **2.5x more rotation** than plain nearest-frame tracking, and **4x as many runs are still spinning after 20 s** (8/20 vs 2/20). The price is a slightly higher drop rate (15% vs 10%).
+* **Gains, all in simulation.** Continuous spinning went from **18.0 s to 84.7 s (4.7x)**. Pen-shaft rotation per run went from **1,476° to 8,709° (5.9x)**. The rotation speed of the best loop is **114°/s**, while the clips average 53°/s. From random states, a 30 s test gives **2.5x more rotation** than plain nearest-frame tracking, and **4x as many runs are still spinning after 20 s** (8/20 vs 2/20). The price is a slightly higher drop rate (15% vs 10%).
 
 ---
 
@@ -43,7 +43,7 @@
 |---|---|---|
 | reference motion | one fixed recorded clip | a walk on the graph, chosen online |
 | start state | must be the clip's first frame | any state (nearest frame) |
-| duration | ends when the clip ends (≤ 21.8 s of motion) | unbounded loops (84.7 s tested) |
+| duration | ends when the clip ends (≤ 21.8 s of motion in the data; 18.0 s is the longest the policy completes in our scene) | unbounded loops (84.7 s tested) |
 | combining demos | impossible | 38,624 validated transitions; the best loop uses 3 demos |
 | after a disturbance | keeps following the clip timeline | re-matches to the nearest frame and re-plans |
 | low-level control | PPO residual tracking policy, one per group | **the same policies, reused unchanged** |
@@ -55,10 +55,10 @@ All numbers come from the same MuJoCo scene and the same Wuji tracking policy. R
 
 **Endurance (持续转笔能力)**
 
-| | original (best single clip) | ours (best stitched loop) | gain |
+| | Wuji's official policy on its own clips (best completed clip) | same policy on our best stitched loop | gain |
 |---|---|---|---|
-| continuous spinning | 21.8 s | **84.7 s** (5.2 laps of 16.4 s) | 3.9x |
-| shaft rotation in one run | 1,584° | **8,709° (24 turns)** | 5.5x |
+| continuous spinning | 18.0 s | **84.7 s** (5.2 laps of 16.4 s) | 4.7x |
+| shaft rotation in one run | 1,476° | **8,709° (24 turns)** | 5.9x |
 | average rotation speed | 53°/s (clip mean), 108°/s (fastest clip) | **114°/s** | 2.2x vs mean |
 | original clips completed by Wuji's policy in this scene | 30 / 40 | — | — |
 

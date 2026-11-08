@@ -58,13 +58,16 @@ def main() -> None:
             rows += (f"<tr><td>{label}</td><td>{r['rotation_mean_deg']:.0f}&deg;</td><td>{r['rotation_last_third_mean_deg']:.0f}&deg;</td>"
                      f"<td>{still}/{r['n']}</td><td>{100 * r['drop_rate']:.0f}%</td><td>{r['jumps_mean']:.1f}</td></tr>")
         A = comp.get("A_original_clip_replay", {})
+        done = [c for c in A.get("clips", []) if c.get("completed")]
+        A_best_s = max((c["active_s"] for c in done), default=0.0)
+        A_best_rot = max((c["reference_rotation_deg"] for c in done), default=0.0)
         Lr = comp.get("L_best_loop_endurance", {})
         comp_html = f"""
 <h2>0. Original vs stitched <span class="zh">与原始方案对比</span></h2>
 <p>Same MuJoCo scene, same Wuji tracking policy; rotation is pen-shaft rotation (roll about the shaft ignored).</p>
-<table><tr><th></th><th>original: best recorded clip</th><th>ours: best stitched loop</th></tr>
-<tr><td>continuous spinning</td><td>{A.get('active_s_max', 0):.1f} s</td><td><b>{Lr.get('survived_s', 0):.1f} s</b></td></tr>
-<tr><td>shaft rotation in one run</td><td>{A.get('rotation_per_clip_max_deg', 0):.0f}&deg;</td><td><b>8,709&deg; (24 turns)</b></td></tr>
+<table><tr><th></th><th>Wuji's official policy on its own clips (best completed clip)</th><th>same policy on our best stitched loop</th></tr>
+<tr><td>continuous spinning</td><td>{A_best_s:.1f} s</td><td><b>{Lr.get('survived_s', 0):.1f} s</b></td></tr>
+<tr><td>shaft rotation in one run</td><td>{A_best_rot:.0f}&deg;</td><td><b>8,709&deg; (24 turns)</b></td></tr>
 <tr><td>original clips completed by Wuji's policy here</td><td>{A.get('completed', '-')}/{A.get('n', '-')}</td><td>-</td></tr></table>
 <p style="margin-top:12px">From 20 random moving states, 30 s each:</p>
 <table><tr><th>controller</th><th>mean rotation</th><th>rotation in last 10 s</th><th>still spinning after 20 s</th><th>drops</th><th>jumps</th></tr>{rows}</table>

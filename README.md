@@ -64,11 +64,11 @@ whole thing is distilled into a policy.
 
 **Compared with Wuji's original pipeline** (same scene, same tracking policy; rotation = pen-shaft rotation; see [`docs/SUMMARY.md`](docs/SUMMARY.md)):
 
-| | original clip replay | stitched graph (ours) |
+| | Wuji's official policy | same policy + stitched graph (ours) |
 |---|---|---|
-| longest continuous spinning | 21.8 s (best clip) | **84.7 s** (best loop, 5.2 laps) |
-| shaft rotation in one run | 1,584° | **8,709° (24 turns)** |
-| from 20 random states, 30 s: mean rotation | 555° (nearest frame, no graph) | **1,385°** (seek + circle the best loop) |
+| longest continuous spinning | 18.0 s (longest clip the policy completes; it fails the longer ones here) | **84.7 s** (best loop, 5.2 laps) |
+| shaft rotation in one run | 1,476° | **8,709° (24 turns)** |
+| from 20 random states, 30 s: mean rotation | 555° (policy + nearest frame, no graph; the official pipeline cannot start from a random state) | **1,385°** (seek + circle the best loop) |
 | ... still spinning after 20 s | 2 / 20 | **8 / 20** |
 | ... pen drops | 10% | 15% |
 
