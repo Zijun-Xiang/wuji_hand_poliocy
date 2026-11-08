@@ -59,11 +59,18 @@ whole thing is distilled into a policy.
 | candidate jumps | 101,934 window-matched + 600 hold-to-start ("trick chaining") transitions; 5,403 removed by the kinematic filter |
 | simulation validation | **40,208 jumps tested, 38,624 passed (96%)** with Wuji's released PPO tracking policy in the loop (≈60 ms per jump per core) |
 | spinnable core | largest SCC = **15,215 frames (59% of the data)** can be revisited forever using only validated moves |
-| loops | 151 closed walks with >= 180 deg of pen rotation; 16 of the top 30 complete a full repeat end to end in sim |
-| best loop | 752 frames (15 s), 9 jumps, 3 demos stitched, 2,360 deg of pen rotation; replayed 3x (45 s) without dropping the pen |
-| closed loop from random states | nearest-frame controller + tracker, 20 starts x 10 s: **mean survival 9.55 s, 5% drops**, 381 deg mean rotation, 2.1 jumps / 3.5 demos per run |
-| behaviour cloning | 30k samples, MLP 512-512-256: 3.6 s mean survival, 55% drops (reference-free but weaker, as expected) |
-| export | 30 stitched clips (12.3 min) in wuji-mjlab's clip format + recipe for PPO |
+| loops | 151 closed walks; 16 of the top 30 complete a full lap end to end in sim |
+| best loop | 16.4 s lap, 9 jumps, 3 demos stitched, 1,709° of pen-shaft rotation per lap (114°/s) |
+
+**Compared with Wuji's original pipeline** (same scene, same tracking policy; rotation = pen-shaft rotation; see [`docs/SUMMARY.md`](docs/SUMMARY.md)):
+
+| | original clip replay | stitched graph (ours) |
+|---|---|---|
+| longest continuous spinning | 21.8 s (best clip) | **84.7 s** (best loop, 5.2 laps) |
+| shaft rotation in one run | 1,584° | **8,709° (24 turns)** |
+| from 20 random states, 30 s: mean rotation | 555° (nearest frame, no graph) | **1,385°** (seek + circle the best loop) |
+| ... still spinning after 20 s | 2 / 20 | **8 / 20** |
+| ... pen drops | 10% | 15% |
 
 Baseline sanity check: the released ONNX policy tracks the *original* clips with
 ~1 cm pen error in our standalone MuJoCo scene, while open-loop PD replay drops
@@ -151,7 +158,8 @@ penspin-graph --run runs/mine build --k 12 --max-cost 6
 penspin-graph --run runs/mine validate --workers 4 --follow-frames 40 --loop-closing-first --max-jumps 60000
 penspin-graph --run runs/mine validate --workers 4 --follow-frames 50 --rest-only
 penspin-graph --run runs/mine loops --min-rotation-deg 180 --max-frames 6000 --max-loops 300 --verify-top 30 --prune-failed --rounds 6
-penspin-graph --run runs/mine eval --n-starts 20 --horizon 500 --restrict-scc
+penspin-graph --run runs/mine eval --n-starts 20 --horizon 1500 --restrict-scc --seek-loop 0
+python scripts/compare_baselines.py runs/mine            # original vs graph comparison
 MUJOCO_GL=egl penspin-graph --run runs/mine render --loop 0 --format gif   # Linux headless; omit MUJOCO_GL on Windows
 ```
 

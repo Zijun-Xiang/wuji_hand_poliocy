@@ -1,0 +1,195 @@
+{
+  "C_stitched_graph": {
+    "episodes": [
+      {
+        "start": "03_continuous_multi_axis/clip_002@144",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 2056.043154158348,
+        "rotation_last_third_deg": 136.2849363737345,
+        "spinning_s": 8.76,
+        "jumps": 5
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_006@365",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 463.6626678660204,
+        "rotation_last_third_deg": 0.0005249164417242498,
+        "spinning_s": 1.12,
+        "jumps": 2
+      },
+      {
+        "start": "04_stable_grasp_rotation/clip_002@352",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 149.0109135601811,
+        "rotation_last_third_deg": 30.941228154877273,
+        "spinning_s": 0.14,
+        "jumps": 0
+      },
+      {
+        "start": "04_stable_grasp_rotation/clip_006@53",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 2022.2837260611338,
+        "rotation_last_third_deg": 472.7483793934232,
+        "spinning_s": 7.96,
+        "jumps": 14
+      },
+      {
+        "start": "03_continuous_multi_axis/clip_007@712",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 334.32444495322864,
+        "rotation_last_third_deg": 86.12151874853386,
+        "spinning_s": 0.16,
+        "jumps": 3
+      },
+      {
+        "start": "02_continuous_single_axis/clip_003@723",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 754.7523808879023,
+        "rotation_last_third_deg": 1.3066455119652356,
+        "spinning_s": 2.72,
+        "jumps": 1
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_002@143",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 758.2619365481323,
+        "rotation_last_third_deg": 110.9551681853355,
+        "spinning_s": 1.58,
+        "jumps": 2
+      },
+      {
+        "start": "01_single_axis/clip_005@100",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 1196.3140707675052,
+        "rotation_last_third_deg": 81.3641983115655,
+        "spinning_s": 4.0600000000000005,
+        "jumps": 1
+      },
+      {
+        "start": "03_continuous_multi_axis/clip_007@7",
+        "survived_s": 14.06,
+        "dropped": true,
+        "rotation_deg": 893.880340757894,
+        "rotation_last_third_deg": 0.0,
+        "spinning_s": 3.34,
+        "jumps": 1
+      },
+      {
+        "start": "03_continuous_multi_axis/clip_001@542",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 1892.6838675110619,
+        "rotation_last_third_deg": 622.2054257817339,
+        "spinning_s": 6.96,
+        "jumps": 6
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_003@32",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 850.6353969399415,
+        "rotation_last_third_deg": 117.54648995998107,
+        "spinning_s": 1.52,
+        "jumps": 9
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_005@460",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 367.27924943258694,
+        "rotation_last_third_deg": 1.497535373732273,
+        "spinning_s": 1.26,
+        "jumps": 6
+      },
+      {
+        "start": "01_single_axis/clip_010@77",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 1419.773930088102,
+        "rotation_last_third_deg": 166.28892140965385,
+        "spinning_s": 4.3,
+        "jumps": 2
+      },
+      {
+        "start": "01_single_axis/clip_001@120",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 907.3341340656987,
+        "rotation_last_third_deg": 0.20231838658897855,
+        "spinning_s": 3.46,
+        "jumps": 1
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_005@132",
+        "survived_s": 13.200000000000001,
+        "dropped": true,
+        "rotation_deg": 627.5896229850832,
+        "rotation_last_third_deg": 0.0,
+        "spinning_s": 1.48,
+        "jumps": 6
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_004@383",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 526.8306204779755,
+        "rotation_last_third_deg": 0.5843813680706322,
+        "spinning_s": 1.6,
+        "jumps": 6
+      },
+      {
+        "start": "03_continuous_multi_axis/clip_009@687",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 145.07951925190608,
+        "rotation_last_third_deg": 1.3642008921159823,
+        "spinning_s": 0.48,
+        "jumps": 0
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_003@287",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 609.8527266064631,
+        "rotation_last_third_deg": 0.2935608063717662,
+        "spinning_s": 1.48,
+        "jumps": 7
+      },
+      {
+        "start": "05_multi_axis_two_rotations/clip_001@185",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 380.06047499843544,
+        "rotation_last_third_deg": 45.24021087661481,
+        "spinning_s": 0.78,
+        "jumps": 0
+      },
+      {
+        "start": "02_continuous_single_axis/clip_001@32",
+        "survived_s": 30.0,
+        "dropped": false,
+        "rotation_deg": 1681.2515915123336,
+        "rotation_last_third_deg": 586.2639237044299,
+        "spinning_s": 5.42,
+        "jumps": 2
+      }
+    ],
+    "n": 20,
+    "survived_mean_s": 28.363,
+    "drop_rate": 0.1,
+    "rotation_mean_deg": 901.8452384714967,
+    "rotation_last_third_mean_deg": 123.0604784077585,
+    "spinning_mean_s": 2.929,
+    "jumps_mean": 3.7
+  },
+  "horizon_s": 30.0,
+  "seconds": 494.14512395858765
+}

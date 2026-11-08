@@ -273,7 +273,16 @@ def cmd_eval(args) -> None:
         restrict = np.zeros(graph.num_nodes, bool)
         restrict[nodes] = True
         print(f"matching restricted to the largest SCC ({nodes.size} frames)")
-    policy = GraphTrackingPolicy(graph, make_controller(args.controller), restrict_to=restrict)
+    matcher = None
+    if args.seek_loop is not None:
+        from .graph.planner import MotionMatchingController
+
+        loops = _load_loops(run / "loops.json")
+        if not loops:
+            sys.exit("no loops found yet: run `penspin-graph loops` first")
+        matcher = MotionMatchingController(graph, restrict_to=restrict, goal_loop=loops[args.seek_loop].nodes)
+        print(f"loop mode: seek loop {args.seek_loop} ({loops[args.seek_loop].n_frames} frames) and circle it")
+    policy = GraphTrackingPolicy(graph, make_controller(args.controller), restrict_to=restrict, matcher=matcher)
     report = evaluate_closed_loop(graph, policy, n_starts=args.n_starts, horizon=args.horizon, seed=args.seed)
     print("graph policy:", report.describe())
     _write_json(run / "eval_graph_policy.json", {
@@ -458,6 +467,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--horizon", type=int, default=500)
     s.add_argument("--seed", type=int, default=0)
     s.add_argument("--restrict-scc", action="store_true", help="only match into the largest SCC")
+    s.add_argument("--seek-loop", type=int, default=None, help="loop mode: plan into loop K (from loops.json) and circle it")
     s.set_defaults(func=cmd_eval)
 
     s = sub.add_parser("export", help="export stitched clips for wuji-mjlab PPO training")

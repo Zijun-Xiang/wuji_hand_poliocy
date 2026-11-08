@@ -240,6 +240,10 @@ class MotionMatchingController:
     cooldown: int = 50
     prefer_margin: float = 2.0  # use a frame inside ``restrict_to`` only if it is within this many step units of the true nearest
     jump_statuses: tuple[JumpStatus, ...] = (JumpStatus.VALIDATED,)
+    goal_loop: np.ndarray | None = None  # node cycle to seek and then circle forever ("loop mode")
+    drift_mode: str = "pen"  # "pen": re-match only when the pen leaves the reference; "feature": full-feature drift
+    lost_pos_m: float = 0.03
+    lost_axis_rad: float = np.deg2rad(40.0)
     current: int = -1
     tick: int = 0
     history: list[int] = field(default_factory=list)
@@ -260,6 +264,10 @@ class MotionMatchingController:
         if self.restrict_to is not None:
             self._targets_ok &= self.restrict_to
         self._blend_lookup = g.jumps.blend_lookup() if len(g.jumps) else {}
+        self._loop_pos: dict[int, int] = {}
+        if self.goal_loop is not None:
+            self.goal_loop = np.asarray(self.goal_loop, dtype=np.int64)
+            self._loop_pos = {int(n): i for i, n in enumerate(self.goal_loop)}
 
     # ------------------------------------------------------------------ #
     def _frame(self, node: int) -> TrackedFrame:
@@ -292,9 +300,36 @@ class MotionMatchingController:
         self.current_ref = self._frame(self.current)
         return self.current
 
+    def _pen_lost(self, state: FrameState) -> bool:
+        from ..data.clips import PEN_SHAFT_AXIS_LOCAL
+        from ..data.transforms import quat_apply
+
+        ref = self.current_ref.pen_pose if self.current_ref is not None else self.graph.node_pen_pose(self.current)
+        pen = np.asarray(state.pen_pose, dtype=np.float64)
+        if np.linalg.norm(pen[:3] - ref[:3]) > self.lost_pos_m:
+            return True
+        a = quat_apply(pen[3:], PEN_SHAFT_AXIS_LOCAL)
+        b = quat_apply(ref[3:], PEN_SHAFT_AXIS_LOCAL)
+        return float(np.arccos(np.clip(a @ b, -1.0, 1.0))) > self.lost_axis_rad
+
     def _distance_to(self, node: int, state: FrameState) -> float:
         f = self.graph.featurizer.transform_state(state)
         return float(np.linalg.norm(f - self.graph.features[node]) / self.graph.step_unit)
+
+    def _plan_loop(self, node: int) -> list[int]:
+        """Loop mode: one full lap if we are on the loop, otherwise the shortest
+        validated path into it (the next call then plans the lap)."""
+        L = self.goal_loop
+        if int(node) in self._loop_pos:
+            k = self._loop_pos[int(node)]
+            return [int(x) for x in np.concatenate([L[k + 1 :], L[: k + 1]])]
+        dist, pred = dijkstra(self._adj, directed=True, indices=node, return_predecessors=True, limit=3000.0)
+        reach = np.isfinite(dist[L])
+        if not reach.any():
+            return []
+        entry = int(L[reach][np.argmin(dist[L][reach])])
+        path = _path_from_predecessors(pred, node, entry)
+        return [] if path is None or len(path) < 2 else path[1:]
 
     def _plan_escape(self, node: int) -> list[int]:
         """Shortest path from ``node`` to a frame with a long active future that
@@ -353,11 +388,20 @@ class MotionMatchingController:
             return self.current_ref.qpos
 
         node = self.current
-        drift = self._distance_to(node, state)
-        if self._plan and drift > 2.0 * self.drift_threshold:  # lost the reference while following a plan
+        if self.drift_mode == "pen":
+            # The tracking policy deliberately moves the joints away from the
+            # reference (residuals up to +-0.6 rad), so the full feature distance
+            # is a poor "am I lost?" signal.  Judge by the pen instead.
+            lost = self._pen_lost(state)
+            drift = 10.0 * self.drift_threshold if lost else 0.0
+        else:
+            drift = self._distance_to(node, state)
+            lost = drift > 2.0 * self.drift_threshold
+        if self._plan and lost:  # lost the reference while following a plan
             self._plan = []
         at_end = g.successor(node) is None and not self._plan
-        if at_end or (not self._plan and (self.tick % self.requery_every == 0 or drift > self.drift_threshold)):
+        periodic = self.drift_mode != "pen" and self.tick % self.requery_every == 0
+        if at_end or (not self._plan and (periodic or drift > self.drift_threshold)):
             d, idx = self._nearest(state)
             for dist_i, cand in zip(d, idx):
                 if cand < 0 or cand == node:
@@ -367,6 +411,8 @@ class MotionMatchingController:
                     self._plan = []
                 break
         remaining = int(g.active_remaining(np.array([node]))[0])
+        if not self._plan and self.goal_loop is not None:
+            self._plan = self._plan_loop(node)
         if not self._plan and self._since_jump >= self.cooldown and remaining < self.jump_when_remaining_below:
             self._plan = self._plan_escape(node)
         if self._plan:

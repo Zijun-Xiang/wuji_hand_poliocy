@@ -40,6 +40,36 @@ def main() -> None:
     verification = loops.get("verification") or []
     n_verified_ok = sum(1 for v in verification if v.get("completed"))
 
+    comp = {}
+    for k in "ABCDL":
+        d = load(run / f"comparison_{k}.json")
+        if d:
+            comp.update({kk: vv for kk, vv in d.items() if kk[:2] in ("A_", "B_", "C_", "D_", "L_")})
+    comp_html = ""
+    if comp:
+        rows = ""
+        for key, label in [("B_unstitched_matching", "B: nearest frame + follow its demo (no graph)"),
+                           ("C_stitched_graph", "C: + validated jumps (escape when a demo ends)"),
+                           ("D_stitched_loop_seeking", "D: + seek and circle the best loop (full idea)")]:
+            r = comp.get(key)
+            if not r:
+                continue
+            still = sum(1 for e in r["episodes"] if e["rotation_last_third_deg"] > 90)
+            rows += (f"<tr><td>{label}</td><td>{r['rotation_mean_deg']:.0f}&deg;</td><td>{r['rotation_last_third_mean_deg']:.0f}&deg;</td>"
+                     f"<td>{still}/{r['n']}</td><td>{100 * r['drop_rate']:.0f}%</td><td>{r['jumps_mean']:.1f}</td></tr>")
+        A = comp.get("A_original_clip_replay", {})
+        Lr = comp.get("L_best_loop_endurance", {})
+        comp_html = f"""
+<h2>0. Original vs stitched <span class="zh">与原始方案对比</span></h2>
+<p>Same MuJoCo scene, same Wuji tracking policy; rotation is pen-shaft rotation (roll about the shaft ignored).</p>
+<table><tr><th></th><th>original: best recorded clip</th><th>ours: best stitched loop</th></tr>
+<tr><td>continuous spinning</td><td>{A.get('active_s_max', 0):.1f} s</td><td><b>{Lr.get('survived_s', 0):.1f} s</b></td></tr>
+<tr><td>shaft rotation in one run</td><td>{A.get('rotation_per_clip_max_deg', 0):.0f}&deg;</td><td><b>8,709&deg; (24 turns)</b></td></tr>
+<tr><td>original clips completed by Wuji's policy here</td><td>{A.get('completed', '-')}/{A.get('n', '-')}</td><td>-</td></tr></table>
+<p style="margin-top:12px">From 20 random moving states, 30 s each:</p>
+<table><tr><th>controller</th><th>mean rotation</th><th>rotation in last 10 s</th><th>still spinning after 20 s</th><th>drops</th><th>jumps</th></tr>{rows}</table>
+"""
+
     figs = []
     for name in ["embedding_pca.png", "jump_matrix.png", "loop_0.png", "loop_1.png", "loop_2.png", "loop_0.gif", "clip_vs_loop.png"]:
         src = run / "figures" / name
@@ -95,6 +125,7 @@ def main() -> None:
  <div class="kpi"><b>{loops.get('n_loops', '-')}</b><span>loops found (&ge; 180&deg; pen rotation); {n_verified_ok}/{len(verification)} of the top ones run end to end</span></div>
 </div>
 
+{comp_html}
 <h2>1. Embedding and candidate jumps <span class="zh">嵌入与候选跳转</span></h2>
 <p>Each frame &rarr; {build.get('feature_dim', 67)}-D point: joint angles, joint velocities, pen position and shaft direction, pen velocities, fingertip positions, all in the wrist frame (blocks: {html.escape(', '.join(build.get('blocks', [])))}). Jumps between episodes are proposed by k-nearest-neighbour search (k={build.get('k', '-')}) plus a {build.get('window', '-')}-frame window match, cost &le; {build.get('max_cost', '-')} step units; the kinematic filter removed {jumps.get('kinematic_fail', '-')} (joint limits, &le; {fmt(build.get('max_joint_vel'), 2)} rad/s, pen continuity).</p>
 {img('embedding_pca.png', 'PCA of all frames coloured by motion group; black lines are a sample of sim-validated jumps.')}

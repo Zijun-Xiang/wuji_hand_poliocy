@@ -167,7 +167,7 @@ chaining.
 End-to-end replay of whole loops then pruned 5 jumps that passed the local
 0.8 s test but broke a 15 s loop (the local test is necessary, not
 sufficient); after that 16 of the top 30 loops run a full repeat, and the best
-one runs 3 repeats (45 s, 7,000 deg of pen rotation) without dropping the pen.
+one runs 5.2 laps (84.7 s, 8,709 deg of pen-shaft rotation) before the pen axis error trips the 60 deg threshold.
 
 ## 8. Open questions
 

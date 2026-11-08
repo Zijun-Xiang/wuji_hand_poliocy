@@ -1,0 +1,12 @@
+{
+  "L_best_loop_endurance": {
+    "repeats": 6,
+    "reference_s": 98.52,
+    "survived_s": 84.74,
+    "completed": false,
+    "summary": "FAILED@4236 (pen_axis): 4237 ticks, pen pos err mean 1.4 cm (final 1.7), axis err mean 12 deg, joint err mean 0.614 rad",
+    "reference_rotation_deg": 14159.78257080436
+  },
+  "horizon_s": 30.0,
+  "seconds": 13.615129232406616
+}
