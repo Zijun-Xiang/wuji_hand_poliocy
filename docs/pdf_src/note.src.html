@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>penspin-graph — the project explained step by step</title>
+<link rel="stylesheet" href="node_modules/katex/dist/katex.min.css">
+<style>
+@page { size: A4; margin: 14mm 14mm 17mm 14mm; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: "Inter", "Noto Sans CJK SC", sans-serif; font-size: 9.8pt; line-height: 1.55; color: #1f2937; margin: 0; }
+p { margin: 5px 0; }
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%); color: #fff; border-radius: 12px; padding: 16px 20px 14px; margin-bottom: 12px; }
+.hero .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 8.4pt; opacity: .85; }
+.hero h1 { font-size: 19pt; margin: 4px 0 4px; line-height: 1.2; }
+.hero .sub { font-size: 10pt; opacity: .95; }
+.hero .src { font-size: 8.2pt; opacity: .85; margin-top: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 8.6pt; color: #374151; margin: 0 0 8px; padding: 6px 10px; border: 1px dashed #cbd5e1; border-radius: 8px; }
+.legend span.item { display: inline-flex; align-items: center; gap: 5px; }
+h2 { font-size: 13.2pt; color: #1e3a8a; border-left: 5px solid #2563eb; padding: 3px 0 3px 10px; margin: 20px 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 9px; break-after: avoid; page-break-after: avoid; }
+h2 .num { background: #2563eb; color: #fff; border-radius: 999px; min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 11pt; padding: 0 6px; flex: none; }
+h2 .zh { color: #64748b; font-weight: 500; font-size: 10.5pt; white-space: nowrap; }
+.keep { break-inside: avoid; page-break-inside: avoid; }
+h3 { font-size: 10.6pt; color: #1e40af; margin: 12px 0 5px; break-after: avoid; page-break-after: avoid; }
+.box { border-radius: 8px; padding: 8px 12px; margin: 9px 0; break-inside: avoid; page-break-inside: avoid; }
+.box-title { font-weight: 700; margin-bottom: 3px; }
+.key { background: #eff6ff; border: 1px solid #bfdbfe; }
+.result { background: #f8fbff; border: 2px solid #2563eb; }
+.sol { background: #fefce8; border: 1px solid #fde68a; }
+.sol .box-title { color: #854d0e; }
+.mean { background: #f5f3ff; border: 1px solid #ddd6fe; }
+.mean .box-title { color: #5b21b6; }
+.ex { background: #ecfdf5; border: 1px solid #a7f3d0; }
+.ex .box-title { color: #065f46; }
+.warn { background: #fffbeb; border: 1px solid #fcd34d; }
+.warn .box-title { color: #92400e; }
+.fixbox { background: #fff7ed; border: 1px solid #fdba74; }
+.fixbox .box-title { color: #9a3412; }
+.step { border-left: 3px solid #93c5fd; padding: 3px 0 3px 12px; margin: 9px 0 11px; break-inside: avoid; page-break-inside: avoid; }
+.step-h { font-weight: 700; color: #1e3a8a; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.badge { background: #dbeafe; color: #1e40af; border-radius: 6px; padding: 0 7px; font-size: 8.8pt; }
+.rule { background: #e0e7ff; color: #3730a3; border-radius: 999px; padding: 0 7px; font-size: 7.9pt; font-weight: 600; }
+.hidden { background: #fee2e2; color: #b91c1c; border-radius: 999px; padding: 0 7px; font-size: 7.9pt; font-weight: 700; }
+.fix { background: #fde68a; color: #92400e; border-radius: 999px; padding: 0 7px; font-size: 7.9pt; font-weight: 700; }
+.why { margin: 3px 0 0; }
+.why::before { content: "Why: "; color: #059669; font-weight: 700; }
+.chip { border-radius: 999px; padding: 0 8px; font-size: 7.9pt; font-weight: 700; display: inline-block; line-height: 1.6; }
+.c-same { background: #d1fae5; color: #065f46; }
+.c-changed { background: #fef3c7; color: #92400e; }
+.c-new { background: #dbeafe; color: #1e40af; }
+.red { color: #dc2626; font-weight: 700; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 8px; font-size: 8.9pt; line-height: 1.45; }
+th { background: #1e3a8a; color: #fff; text-align: left; padding: 4px 7px; font-weight: 600; }
+td { padding: 4px 7px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+tr:nth-child(even) td { background: #f8fafc; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+.cmp-title { font-weight: 700; color: #0f172a; margin: 10px 0 2px; display: flex; align-items: center; gap: 8px; break-after: avoid; page-break-after: avoid; }
+table.cmp th:first-child { width: 17%; background: #334155; }
+table.cmp th.wuji { background: #475569; width: 41%; }
+table.cmp th.ours { background: #1d4ed8; width: 42%; }
+table.cmp td:first-child { font-weight: 600; color: #334155; }
+pre { font-family: "DejaVu Sans Mono", monospace; font-size: 7.9pt; line-height: 1.4; margin: 3px 0 0; white-space: pre-wrap; color: #3f3f46; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.4pt; background: #f1f5f9; padding: 0 3px; border-radius: 3px; }
+figure { margin: 8px 0 10px; break-inside: avoid; page-break-inside: avoid; }
+figcaption { font-size: 8.5pt; color: #475569; margin-top: 3px; }
+.katex-display { margin: 5px 0; }
+.katex { font-size: 1.06em; }
+.small { font-size: 8.6pt; color: #475569; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pb { break-before: page; page-break-before: always; }
+ul { margin: 4px 0; padding-left: 18px; } li { margin: 1px 0; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">Wuji Hand 2 · pen spinning (转笔) · project walkthrough</div>
+  <h1>The penspin-graph project, explained step by step</h1>
+  <div class="sub">Each of the 11 stages: what it does, the formula behind it, and what Wuji's official method does instead.</div>
+  <div class="src">Sources: penspin-graph repo (<code style="background:none;color:#fff">src/penspin_graph/</code>, measured results in <code style="background:none;color:#fff">runs/full3/</code>) · wuji-mjlab v2026.10.22 (<code style="background:none;color:#fff">src/wuji_mjlab/tasks/pen_spin/</code>, <code style="background:none;color:#fff">deploy/pen_spin/</code>). All results are from simulation.</div>
+</div>
+
+
+
+<div class="box key">
+  <div class="box-title">❓ The question in plain words</div>
+  Wuji gives 40 recorded pen-spinning clips and a policy (策略) that follows one clip at a time. How did this project turn that into a controller that starts from any hand state and keeps the pen spinning? And at every stage, what differs from Wuji's official method?
+</div>
+
+<div class="box result">
+  <div class="box-title">🎯 Where we will end up</div>
+  <ol style="margin:2px 0 4px; padding-left:18px">
+    <li>Every frame becomes a point: $\bff_t=\mathbf w\odot(\bx_t-\boldsymbol\mu)/\boldsymbol\sigma\in\mathbb R^{67}$.</li>
+    <li>Frames are linked inside each clip. New jumps $u\to v$ are added when $C(u,v)=\frac1\delta\sum_{j}\lambda_j\lVert\bff_{u+1+j}-\bff_{v+j}\rVert\le 6$, or when a clip's final hold can blend into another clip's start.</li>
+    <li>A jump is kept only if it is physically gentle (blend $b=\clip(\lceil\Delta q_{\max}/(\omega_{\max}\Delta t)-1\rceil,2,10)$) and if Wuji's own policy, $\bq^{\text{target}}=\bq^{\text{ref}}+\operatorname{EMA}(\clip(0.5\,\ba))$, executes it in simulation about as well as the original clip.</li>
+    <li>38,624 jumps pass. They connect 15,215 frames (59%) into a core the hand never has to leave.</li>
+    <li>From any state: nearest frame $v^*=\arg\min_v\lVert\bff(s)-\bff_v\rVert$, shortest path into a verified loop, then circle it.</li>
+  </ol>
+  <table style="margin:4px 0 0">
+    <tr><th>same Wuji policy, same simulator scene</th><th>Wuji official: one clip</th><th>this project: stitched loop</th><th>gain</th></tr>
+    <tr><td>longest continuous spinning</td><td>18.0 s</td><td><b>84.7 s</b></td><td>4.7×</td></tr>
+    <tr><td>pen-shaft rotation in one run</td><td>1,476°</td><td><b>8,709° (24 turns)</b></td><td>5.9×</td></tr>
+    <tr><td>from 20 random states, 30 s: still spinning after 20 s</td><td>2 / 20 (no graph)</td><td><b>8 / 20</b></td><td>4×</td></tr>
+  </table>
+</div>
+
+<h2>Flow at a glance <span class="zh">流程总览</span></h2>
+<figure>{{FIG_FLOW}}
+<figcaption><b>Figure 1.</b> The 11 stages, numbered in order from 1 to 11. Stage 6 (dashed) is Wuji's released policy, reused unchanged. Red arc: a jump that breaks a long loop is rejected, then loops are searched again.</figcaption></figure>
+
+<h2 class="pb">The 11 stages side by side with Wuji's method <span class="zh">逐步对比总览</span></h2>
+<div class="legend">
+  <span class="item"><span class="red">red</span> = the part that changes in this step</span>
+  <span class="item"><span class="rule">R3</span> = rule from the toolbox (§0)</span>
+  <span class="item"><span class="hidden">HIDDEN STEP</span> = the code does it without saying</span>
+  <span class="item"><span class="fix">FIX</span> = a correction to an earlier message</span>
+  <span class="item"><span class="chip c-same">SAME</span><span class="chip c-changed">CHANGED</span><span class="chip c-new">NEW</span> = this stage vs Wuji's official method</span>
+</div>
+<figure>{{FIG_LANES}}
+<figcaption><b>Figure 2.</b> The same 11 stages side by side with Wuji's official pipeline. Dashed grey boxes mean "Wuji has no such step". The chip in the middle says how our stage relates to Wuji's: <span class="chip c-same">SAME</span> reused, <span class="chip c-changed">CHANGED</span> same purpose but a different method, <span class="chip c-new">NEW</span> no counterpart.</figcaption></figure>
+
+<h2 class="pb"><span class="num">0</span> Symbols, rules and abbreviations <span class="zh">符号、规则与缩写</span></h2>
+
+<h3>Symbols table</h3>
+<table>
+<tr><th>Symbol</th><th>Size</th><th>Meaning</th><th>Known?</th></tr>
+<tr><td>$t,\ T$</td><td>scalar</td><td>frame index inside a clip; number of frames. Frames are $\Delta t=0.02$ s apart (50 Hz).</td><td>✅ data</td></tr>
+<tr><td>$\bq_t,\ \dq_t$</td><td>20, 20</td><td>finger joint angles (关节角) and joint velocities (4 joints × 5 fingers)</td><td>✅ data</td></tr>
+<tr><td>$\bp_t,\ \brho_t$</td><td>3, 4</td><td>pen centre position and pen orientation quaternion (四元数), in the wrist frame</td><td>✅ data</td></tr>
+<tr><td>$\bn_t$</td><td>3</td><td>unit direction of the pen shaft (笔杆方向)</td><td>✅ from $\brho_t$</td></tr>
+<tr><td>$\bom_t$</td><td>3</td><td>pen angular velocity (角速度), pen frame</td><td>✅ from $\brho_t$</td></tr>
+<tr><td>$\bl_{t}$</td><td>21×3</td><td>palm + 20 finger-link positions; "tips" = the 5 distal links (15 numbers)</td><td>✅ data</td></tr>
+<tr><td>$s_t$</td><td>0/1</td><td>resting flag: hand and pen are not moving</td><td>✅ computed once</td></tr>
+<tr><td>$\bx_t,\ \bff_t$</td><td>67, 67</td><td>raw feature vector; normalised point (嵌入点)</td><td>✅ computed once</td></tr>
+<tr><td>$\boldsymbol\mu,\ \boldsymbol\sigma,\ w_b$</td><td>67, 67, 7</td><td>mean and std of each feature over all frames; weight of block $b$</td><td>✅ fitted / chosen</td></tr>
+<tr><td>$\delta$</td><td>scalar</td><td>step unit (步长单位): median distance between consecutive frames = 0.565</td><td>✅ computed once</td></tr>
+<tr><td>$u,\ v$</td><td>node ids</td><td>two frames (graph nodes); a jump $u\to v$ means "after $u$, play $v$"</td><td>❌ searched</td></tr>
+<tr><td>$K,\ W,\ \lambda_j$</td><td>12, 5, 5</td><td>neighbours per query; window length in frames; window weights</td><td>✅ chosen</td></tr>
+<tr><td>$C(u,v)$</td><td>scalar</td><td>window cost of a jump, in step units</td><td>❌ computed per jump</td></tr>
+<tr><td>$b,\ \gamma_i$</td><td>int, scalar</td><td>number of blended frames at a jump; blend fraction $i/(b+1)$</td><td>❌ computed per jump</td></tr>
+<tr><td>$\Delta q_{\max},\ \omega_{\max}$</td><td>scalar</td><td>largest joint gap across a jump; joint-speed limit (5.81 rad/s)</td><td>❌ per jump / ✅ fitted</td></tr>
+<tr><td>$\bo_k,\ \ba_k$</td><td>155, 20</td><td>policy observation and raw policy output at control tick $k$</td><td>❌ live</td></tr>
+<tr><td>$\br_k,\ \rb_k$</td><td>20, 20</td><td>residual (残差) after scale + clip; residual after EMA smoothing</td><td>❌ live</td></tr>
+<tr><td>$\bq^{\text{ref}}_k,\ \bq^{\text{target}}_k$</td><td>20, 20</td><td>reference joint angles fed to the policy; joint target sent to the hand</td><td>❌ live</td></tr>
+<tr><td>$e^{\text{pos}}_k,\ e^{\text{ax}}_k$</td><td>scalar</td><td>pen position error (m) and shaft-direction error (rad) vs the reference</td><td>❌ measured</td></tr>
+<tr><td>$H$</td><td>int</td><td>frames followed after a jump in the validation test (40, or 50 for hold jumps)</td><td>✅ chosen</td></tr>
+<tr><td>$c(e)$</td><td>scalar</td><td>edge cost (边权) used by the shortest-path search</td><td>✅ formula</td></tr>
+<tr><td>$\Phi$</td><td>degrees</td><td>accumulated change of pen orientation, incl. roll (姿态累计变化); used to rank loops</td><td>❌ computed per loop</td></tr>
+<tr><td>$\Theta$</td><td>degrees</td><td>accumulated rotation of the pen shaft only (笔杆累计转角); used to evaluate</td><td>❌ measured</td></tr>
+</table>
+
+<div class="box warn">
+  <div class="box-title">⚠ Look-alike symbols</div>
+  <ul>
+    <li>$\bq$ is always joint angles. Quaternions are $\brho$. (The code calls both "q".)</li>
+    <li>$v$ is a frame (node). The speed limit is $\omega_{\max}$, not "$v_{\max}$".</li>
+    <li>$\delta$ (step unit, a feature distance) ≠ $\Delta t$ (0.02 s) ≠ $\Delta q_{\max}$ (a joint gap in rad).</li>
+    <li>$C(u,v)$ = how different two continuations are. $c(e)=25+10\,C$ = what an edge costs the planner. They are related but not the same.</li>
+    <li>$K=12$ neighbours ≠ $k$ = control tick.</li>
+  </ul>
+</div>
+
+<h3>Rules toolbox</h3>
+<table>
+<tr><th style="width:6%">#</th><th style="width:34%">Rule</th><th>Formula</th><th style="width:27%">1D version / note</th></tr>
+<tr><td>R1</td><td>Point into a moving frame (坐标变换)</td><td>$\bp^{\text{local}}=R^{\top}(\bp^{\text{world}}-\mathbf t)$</td><td>$x^{\text{local}}=x-t$</td></tr>
+<tr><td>R2</td><td>Rotation into a frame; rotate a vector</td><td>$\brho^{\text{local}}=\brho_{\text{frame}}^{-1}\otimes\brho^{\text{world}}$; $\ \bn=R(\brho)\,\mathbf e_x$</td><td>angles: $\theta^{\text{local}}=\theta-\theta_{\text{frame}}$</td></tr>
+<tr><td>R3</td><td>z-score (标准化)</td><td>$z=(x-\mu)/\sigma$</td><td>$\mu=0.4,\ \sigma=0.2,\ x=0.6\Rightarrow z=1$</td></tr>
+<tr><td>R4</td><td>Weighted distance: the weight enters squared</td><td>$\lVert\mathbf w\odot\Delta\bz\rVert^2=\sum_i w_i^2\,\Delta z_i^2$</td><td>$w=2$ counts $4\times$</td></tr>
+<tr><td>R5</td><td>Finite difference (有限差分)</td><td>$\dot x_t\approx(x_{t+1}-x_t)/\Delta t$</td><td>$0.40\to0.43$ rad: 1.5 rad/s</td></tr>
+<tr><td>R6</td><td>Median as a robust unit (中位数)</td><td>$\operatorname{median}$ ignores a few huge or tiny values</td><td>holds give tiny steps; flicks give huge ones</td></tr>
+<tr><td>R7</td><td>Normalised weights</td><td>$\lambda_j=d^{\,j}/\sum_i d^{\,i}\ \Rightarrow\ \sum_j\lambda_j=1$</td><td>a weighted average</td></tr>
+<tr><td>R8</td><td>Smallest integer not below $x$ (向上取整)</td><td>$n\ge x,\ n\in\mathbb Z\iff n\ge\lceil x\rceil$</td><td>$\lceil 3.3\rceil=4$</td></tr>
+<tr><td>R9</td><td>Lerp and slerp (线性 / 球面插值)</td><td>$(1-\gamma)\,\mathbf a+\gamma\,\mathbf b$; slerp keeps a quaternion unit-length</td><td>$\gamma=0.25$: a quarter of the way</td></tr>
+<tr><td>R10</td><td>Angle between unit vectors</td><td>$\theta=\arccos(\hat{\mathbf a}\cdot\hat{\mathbf b})$, dot product clipped to $[-1,1]$</td><td>$\cos 60^\circ=0.5$</td></tr>
+<tr><td>R11</td><td>Clip (截断)</td><td>$\clip(x,l,h)=\min(\max(x,l),h)$</td><td>$\clip(1.0,-0.6,0.6)=0.6$</td></tr>
+<tr><td>R12</td><td>EMA (Exponential Moving Average, 指数滑动平均)</td><td>$\bar r_k=\alpha r_k+(1-\alpha)\bar r_{k-1}$; for constant $r$: $\bar r_k=r\,(1-(1-\alpha)^k)$</td><td>$\alpha=0.5$: 0.3, 0.45, … → 0.6</td></tr>
+<tr><td>R13</td><td>Dijkstra shortest path (迪杰斯特拉最短路径)</td><td>cheapest path when all edge costs are $\ge 0$</td><td>like road navigation</td></tr>
+<tr><td>R14</td><td>SCC (Strongly Connected Component, 强连通分量)</td><td>$u,v$ in one SCC $\iff u\rightsquigarrow v$ and $v\rightsquigarrow u$</td><td>a "roundabout" region</td></tr>
+<tr><td>R15</td><td>kNN (k-Nearest Neighbours, k近邻)</td><td>the $K$ points closest to a query</td><td>a sorted distance list, top $K$</td></tr>
+<tr><td>R16</td><td>Soft bound with tanh (双曲正切限幅)</td><td>$\beta(x)=c\tanh(x/c)$: $\approx x$ when $|x|\ll c$, never beyond $\pm c$</td><td>$c=0.15$: $0.03\to0.0296$</td></tr>
+<tr><td>R17</td><td>Angle between two orientations (姿态夹角)</td><td>$\angle(\brho_a,\brho_b)=2\arccos\big|\langle\brho_a,\brho_b\rangle\big|$</td><td>includes roll about the shaft</td></tr>
+</table>
+
+<h3>Abbreviations used in this document</h3>
+<table>
+<tr><th style="width:12%">Short</th><th style="width:42%">English full name</th><th>中文全称</th></tr>
+<tr><td>PPO</td><td>Proximal Policy Optimization</td><td>近端策略优化</td></tr>
+<tr><td>RL</td><td>Reinforcement Learning</td><td>强化学习</td></tr>
+<tr><td>BC</td><td>Behavior Cloning</td><td>行为克隆</td></tr>
+<tr><td>DAgger</td><td>Dataset Aggregation</td><td>数据集聚合</td></tr>
+<tr><td>DR</td><td>Domain Randomization</td><td>域随机化</td></tr>
+<tr><td>EMA</td><td>Exponential Moving Average</td><td>指数滑动平均</td></tr>
+<tr><td>kNN</td><td>k-Nearest Neighbours</td><td>k近邻</td></tr>
+<tr><td>SCC</td><td>Strongly Connected Component</td><td>强连通分量</td></tr>
+<tr><td>MLP</td><td>Multi-Layer Perceptron</td><td>多层感知机</td></tr>
+<tr><td>MJCF</td><td>MuJoCo XML Format (MuJoCo = Multi-Joint dynamics with Contact)</td><td>MuJoCo 模型文件格式（多关节接触动力学）</td></tr>
+<tr><td>ONNX</td><td>Open Neural Network Exchange</td><td>开放神经网络交换格式</td></tr>
+<tr><td>NPZ</td><td>NumPy Zipped archive</td><td>NumPy 压缩数组文件</td></tr>
+<tr><td>PD</td><td>Proportional-Derivative (controller)</td><td>比例-微分（控制器）</td></tr>
+<tr><td>CPU / GPU</td><td>Central / Graphics Processing Unit</td><td>中央处理器 / 图形处理器</td></tr>
+<tr><td>ELU</td><td>Exponential Linear Unit</td><td>指数线性单元</td></tr>
+<tr><td>SHA-256</td><td>Secure Hash Algorithm, 256-bit</td><td>256位安全散列算法</td></tr>
+</table>
+
+<h3>Coder's view: where each symbol lives in the code</h3>
+<table>
+<tr><th style="width:20%">Symbol</th><th style="width:42%">Code name</th><th>File</th></tr>
+<tr><td>$\bff_t$, $\delta$</td><td><code>graph.features[t]</code>, <code>graph.step_unit</code></td><td><code>graph/motion_graph.py</code></td></tr>
+<tr><td>$s_t$</td><td><code>graph.static_mask</code>, <code>graph.active_end</code></td><td><code>graph/motion_graph.py</code></td></tr>
+<tr><td>$C(u,v)$, $b$</td><td><code>graph.jumps.cost</code>, <code>graph.jumps.blend</code></td><td><code>graph/motion_graph.py</code>, <code>graph/kinematics.py</code></td></tr>
+<tr><td>$\omega_{\max}$</td><td><code>KinematicLimits.max_joint_vel</code></td><td><code>graph/kinematics.py</code></td></tr>
+<tr><td>0.5, ±0.6, $\alpha$</td><td><code>action_scale</code>, <code>residual_clip</code>, <code>ema_alpha</code></td><td><code>sim/controller.py</code></td></tr>
+<tr><td>$H$, 1.5</td><td><code>follow_frames</code>, <code>relative_factor</code></td><td><code>sim/validator.py</code></td></tr>
+<tr><td>$c(e)$</td><td><code>jump_cost_offset=25</code>, <code>jump_cost_scale=10</code></td><td><code>graph/loops.py</code>, <code>graph/planner.py</code></td></tr>
+</table>
+
+<!-- ======================================================================= -->
+<h2><span class="num">1</span> Load the clips and move everything into the wrist frame <span class="zh">读取数据 · 手腕坐标系</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/data/clips.py)</span></div>
+<pre>pen_pose   = pose_to_local(object_pose_w, wrist_pose_w)     # pen pose in the wrist frame
+link_pos   = points_to_local(link_pos_w, wrist_pose_w)      # 21 link positions in the wrist frame
+qvel       = finite_difference(qpos, frame_dt)              # joint velocities
+pen_angvel = angular_velocity_from_quats(pen_pose[:, 3:], frame_dt)</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.1</span> The raw data of one frame</div>
+  $$\text{NPZ frame }t:\quad \bq_t\in\mathbb R^{20},\quad (\mathbf t^{w}_t,\ \brho^{w}_t),\quad (\bp^{\text{world}}_t,\ \brho^{\text{world}}_t),\quad \bl^{\text{world}}_{t}\in\mathbb R^{21\times3}$$
+  <p class="why">This is what Wuji's 40 clips contain: joint angles, the wrist pose, the pen pose and the link positions. Everything except the joints is in the capture world frame. Frames are 0.02 s apart. In total: 5 motion groups, 25,885 frames (8.6 min).</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.2</span> Pen position into the wrist frame <span class="rule">R1</span></div>
+  $$\bp_t=\hl{R(\brho^{w}_t)^{\top}}\big(\bp^{\text{world}}_t-\hl{\mathbf t^{w}_t}\big)$$
+  <p class="why">First subtract the wrist origin. Then undo the wrist rotation. After this, the pen position no longer depends on where the hand stood during the recording. The same rule moves the 21 link positions into the wrist frame.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.3</span> Pen orientation into the wrist frame <span class="rule">R2</span></div>
+  $$\brho_t=\hl{(\brho^{w}_t)^{-1}}\otimes\brho^{\text{world}}_t$$
+  <p class="why">A quaternion is "re-based" by multiplying with the inverse of the frame's quaternion. Checked numerically: R1 and R2 reproduce the stored wrist-local arrays exactly.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.4</span> The shaft direction <span class="rule">R2</span></div>
+  $$\bn_t=R(\brho_t)\,\hl{\mathbf e_x},\qquad \mathbf e_x=(1,0,0)^{\top}$$
+  <p class="why">In the pen model the long axis is the pen's own $x$ axis. For spinning, only where the shaft points matters. Roll about the shaft is invisible to the task, and Wuji's policy ignores it too.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.5</span> Velocities by finite differences <span class="rule">R5</span> <span class="hidden">HIDDEN STEP</span></div>
+  $$\dq_t=\frac{\bq_{\hl{t+1}}-\bq_t}{\Delta t},\qquad \bom_t=\frac{\log\!\big(\brho_t^{-1}\otimes\brho_{\hl{t+1}}\big)}{\Delta t}$$
+  <p class="why">The clips store no velocities, so they are computed from the next frame. The pen's angular velocity is the rotation from frame $t$ to $t+1$, written as a rotation vector, divided by $\Delta t$. Hidden detail: the last frame has no next frame, so the code copies the previous value.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 1.6</span> Mark resting frames</div>
+  $$s_t=\Big[\max_i|\dot q_{t,i}|\hl{<0.2}\ \tfrac{\text{rad}}{\text{s}}\Big]\ \wedge\ \Big[\lVert\bom_t\rVert\hl{<0.3}\ \tfrac{\text{rad}}{\text{s}}\Big]$$
+  <p class="why">Every clip ends with a hold (静止段): the hand pinches the pen and nothing moves. The median hold lasts 2.0 s. The first frame of this trailing hold is called the clip's active end. Stage 3 keeps holds out of normal jumps. Stage 4 uses holds on purpose.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example (1D)</div>
+  Clip A: wrist at $x=0.30$ m, pen at $x=0.37$ m $\Rightarrow$ local $0.07$ m.
+  Clip B: wrist at $x=0.50$ m, pen at $x=0.57$ m $\Rightarrow$ local $0.07$ m.
+  In the wrist frame the two states are identical. In the world frame they look 20 cm apart.
+  Velocity: a joint goes from $0.40$ to $0.43$ rad in one frame $\Rightarrow 0.03/0.02=1.5$ rad/s.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-same">SAME data</span><span class="chip c-changed">CHANGED use</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official (wuji-mjlab)</th><th class="ours">This project (penspin-graph)</th></tr>
+<tr><td>Data</td><td>40 clips in 5 groups at 50 Hz. Human hand motion retargeted (重定向) to the robot hand by Wuji.</td><td>The same files, unchanged (SHA-256 checked).</td></tr>
+<tr><td>Frame of reference</td><td>Wrist-local. Every clip is re-based onto one fixed physical wrist mount.</td><td>The same wrist-local math.</td></tr>
+<tr><td>What a frame is for</td><td>"Where the hand should be at time $k$" in one clip.</td><td>A standalone state that can be compared with any other frame.</td></tr>
+<tr><td>Extra per-frame data</td><td>Not needed. The policy sees the reference frame directly.</td><td>Velocities, shaft direction, resting flag, active end.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">2</span> Turn every frame into one 67-D point <span class="zh">嵌入 · 高维向量点</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/features/featurizer.py)</span></div>
+<pre>for b in self.active_blocks:
+    z = (raw[b] - self.mean[b]) / self.std[b]      # z-score per dimension
+    parts.append(self.block_weights[b] * z)        # times the block weight
+return np.concatenate(parts, axis=1)               # 67 numbers per frame</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 2.1</span> Stack seven blocks</div>
+  $$\bx_t=\big[\ \bq_t\ ;\ \dq_t\ ;\ \bp_t\ ;\ \bn_t\ ;\ \dot{\bp}_t\ ;\ \bom_t\ ;\ \bl^{\text{tips}}_t\ \big]$$
+  <p class="why">These numbers describe what the hand and pen are doing right now. Shape check: $20+20+3+3+3+3+15=67$.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 2.2</span> z-score each dimension <span class="rule">R3</span></div>
+  $$z_{t,i}=\frac{x_{t,i}-\hl{\mu_i}}{\hl{\sigma_i}},\qquad \mu_i,\sigma_i\ \text{over all 25,885 frames},\quad \sigma_i\ge10^{-3}$$
+  <p class="why">The blocks have different units. Joint angles vary by 0.08–0.61 rad. Pen positions vary by only 1.4–2.1 cm. Without the z-score, a metre-valued block would vanish next to a radian-valued block.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 2.3</span> Multiply by a block weight</div>
+  $$f_{t,i}=\hl{w_{b(i)}}\,z_{t,i},\qquad w=\{\bq\!:1,\ \dq\!:0.4,\ \bp\!:2,\ \bn\!:2,\ \dot\bp\!:0.4,\ \bom\!:0.4,\ \text{tips}\!:1\}$$
+  <p class="why">The weights say what "similar" means for pen spinning. The pen pose counts most, poses count normally, and velocities count a little.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 2.4</span> Distance between two frames <span class="rule">R4</span></div>
+  $$d(t,t')=\lVert\bff_t-\bff_{t'}\rVert=\sqrt{\textstyle\sum_{b}\hl{w_b^{2}}\,\lVert\bz_{t,b}-\bz_{t',b}\rVert^2}$$
+  <p class="why">The weight is squared inside the distance. So pen position, with weight 2, counts 4× per dimension compared with one joint angle.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 2.5</span> A natural unit: the step unit $\delta$ <span class="rule">R6</span></div>
+  $$\delta=\operatorname*{median}_{t}\ \lVert\bff_{t+1}-\bff_t\rVert=\hl{0.565},\qquad \text{report every distance as } d/\delta$$
+  <p class="why">$d/\delta=1$ means "as different as one typical 50 Hz step". This makes every threshold readable. The median ignores the many tiny steps inside holds (10th percentile 0.08) and the few fast flicks (90th percentile 1.53).</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  Joint: $\mu=0.40$, $\sigma=0.20$ rad. Frame A at 0.60 rad gives $z=1.0$. Frame B at 0.50 rad gives $z=0.5$. Contribution to $d^2$: $1^2\cdot0.5^2=0.25$.<br>
+  Pen $x$: $\sigma=2$ cm. A at 7 cm, B at 9 cm, so $\Delta z=1.0$. Contribution: $2^2\cdot1.0^2=4$.<br>
+  So a 2 cm pen gap counts 16× more than a 0.1 rad joint gap.
+</div>
+
+<div class="box mean">
+  <div class="box-title">💡 Coder's view</div>
+  <code>f = w * (x - mu) / sigma</code> and <code>d = np.linalg.norm(f[a] - f[b]) / delta</code>. This is the same normalisation you would apply before kNN in any machine-learning pipeline. The only extra choice is the block weights.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>State representation</td><td>None for planning. The policy observes the raw reference frame: 89 numbers (20 joint angles, 6 pen axis-point coordinates, 63 link coordinates) plus the live state.</td><td>A normalised 67-D point for every frame.</td></tr>
+<tr><td>Comparing frames</td><td>Never needed. Frame $k$ of clip $c$ is fixed by the clock.</td><td>Any two frames can be compared with $d/\delta$.</td></tr>
+<tr><td>Knobs</td><td>—</td><td>Block weights $w_b$ (CLI option <code>--weights</code>).</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">3</span> Propose jumps: kNN + window matching <span class="zh">候选跳转 · k近邻 + 窗口匹配</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/graph/motion_graph.py)</span></div>
+<pre>q = F[u + 1]                                          # query: the frame we would play next
+d, v = self.knn_filtered(q, k, exclude_episode=..., min_frame_gap=..., allowed=target_ok)
+for w in range(W):                                    # compare the next W frames
+    cost += weights[w] * np.linalg.norm(F[uu + 1 + w] - F[vv + w], axis=1)
+cost /= self.step_unit</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 3.1</span> What a jump means</div>
+  $$\text{recorded: } u\to u+1\to u+2\to\cdots\qquad\text{jump: } u\to\hl{v}\to v+1\to\cdots$$
+  <p class="why">A jump replaces "the rest of this clip" with "the rest of another clip (or another moment of this clip)". Frame $v$ takes the place of $u+1$.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 3.2</span> Match the next frame, not the current one <span class="hidden">HIDDEN STEP</span></div>
+  $$\text{want}\quad \bff_v\approx\bff_{\hl{u+1}}\qquad(\text{not }\bff_u)$$
+  <p class="why">$v$ is what the hand will be asked to do next. So it must look like what the hand would have done next, which is $u+1$. Your original idea said "find the most related point except its own $t+1$". This step makes it precise.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 3.3</span> Ask for the $K=12$ nearest frames <span class="rule">R15</span></div>
+  $$\mathcal V_K(u)=\operatorname{KNN}_{12}\big(\bff_{u+1}\big)\ \ \text{restricted to }\hl{\text{allowed }v}$$
+  <p class="why">Allowed means: (a) both $u$ and $v$ are moving, not resting ($s=0$); (b) $v$ has at least 4 more frames after it; (c) $v$ is in another clip, or in the same clip at least 50 frames (1 s) away from $u$.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 3.4</span> Window cost <span class="rule">R7</span></div>
+  $$C(u,v)=\frac{1}{\delta}\sum_{j=0}^{W-1}\hl{\lambda_j}\,\big\lVert\bff_{u+1+j}-\bff_{v+j}\big\rVert,\qquad \lambda_j=\frac{0.8^{\,j}}{\sum_{i=0}^{W-1}0.8^{\,i}}$$
+  <p class="why">One similar frame is not enough. A pen moving up and a pen moving down can pass through the same pose. Comparing the next $W=5$ frames (0.1 s) checks that both continuations are about to do the same thing. With $W=5$: $\lambda=(0.298,\ 0.238,\ 0.190,\ 0.152,\ 0.122)$, so earlier frames count more because they are executed first.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 3.5</span> Keep the cheap ones</div>
+  $$\text{keep } u\to v\quad\text{if}\quad C(u,v)\le\hl{6}$$
+  <p class="why">6 step units still allows clearly different clips to connect. Stages 5 and 7 then decide which of them the hand can really execute. Result: 101,934 candidates. Of all jumps that later pass simulation (stage 7), 26,803 cross between clips and 11,821 stay inside one clip.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  Distances over the window, in step units: $2,\,2,\,3,\,3,\,4$.
+  $C=0.298\cdot2+0.238\cdot2+0.190\cdot3+0.152\cdot3+0.122\cdot4=2.59\le6\Rightarrow$ kept.
+  Check on real data: recomputing $C$ by hand for a stored jump gives $1.5997$, the same as the stored value.
+</div>
+
+<div class="box warn">
+  <div class="box-title">⚠ Two rules learned the hard way</div>
+  <ul>
+    <li><b>Holds are excluded.</b> All resting frames look almost identical. Without this rule the cheapest "jumps" are hold → hold inside one clip. They cost about 0, always pass, and are useless.</li>
+    <li><b>Same-clip jumps need a 1 s gap.</b> Otherwise $u\to u+2$ would count as a jump. A jump back in time inside a continuous-spin clip is the most natural way to repeat a turn.</li>
+  </ul>
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>Edges between frames</td><td>Only $t\to t+1$ inside one clip.</td><td>Plus 101,934 proposed jumps, between and within clips.</td></tr>
+<tr><td>Where motion can go next</td><td>Exactly one place.</td><td>Up to 12 alternatives per frame.</td></tr>
+<tr><td>Clip boundary</td><td>Hard: the training episode ends at <code>reference_end</code>.</td><td>Soft: it can be crossed through a validated jump.</td></tr>
+<tr><td>Where variety comes from</td><td>Training: a random start time inside a clip (adaptive 1 s bins weighted by past failures), plus a random pen slide of ±2 cm and roll of ±20° at reset.</td><td>New edges in the data. No training.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">4</span> Chain tricks through the resting grasp <span class="zh">动作衔接 · 静止抓握</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(MotionGraph.propose_rest_transitions)</span></div>
+<pre># u = first hold frame of clip a,  v = first moving frame of clip b
+u = self.node_id(a, min(int(self.active_end[a]), int(self.episode_lengths[a]) - 1))
+v = self.node_id(b, self.first_moving_frame(b))
+if dpos &gt; max_pen_pos_m or dax &gt; max_pen_axis_rad:
+    continue                                                  # pen too far apart
+blend = int(max(blend_frames, np.ceil(dq / (max_joint_vel * dt) - 1.0)))   # slow blend</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.1</span> The problem, measured</div>
+  $$\operatorname*{median}_{\text{clips}}\ \Big(\operatorname*{median}_{t}\ \min_{|t'-t|\ge 50}\ \frac{d(t,t')}{\delta}\Big)=\hl{10.6}\ \ (\text{range }6.9\text{–}13.3)\ >\ 6$$
+  <p class="why">Inside one clip, the closest frame at least 1 s away is usually more than 10 step units away. So the full state is not periodic: the fingers re-grasp differently on every turn. Stage 3 alone therefore produced only tiny loops. The largest region the hand could stay in forever was just 670 frames.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.2</span> The state all clips share</div>
+  $$u_a=\text{first hold frame of clip }a,\qquad v_b=\text{first moving frame of clip }b\ \ (b\ne a)$$
+  <p class="why">Every clip ends in a resting pinch grasp, and every clip starts from a similar calm grasp. This is the natural "hub" for chaining one trick into another.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.3</span> The pen must already be close <span class="rule">R10</span></div>
+  $$e^{\text{pos}}=\lVert\bp_{u_a}-\bp_{v_b}\rVert\le\hl{6\ \text{cm}},\qquad e^{\text{ax}}=\arccos\big(\bn_{u_a}\cdot\bn_{v_b}\big)\le\hl{60^\circ}$$
+  <p class="why">During the blend the fingers may re-shape the grasp, but the pen should not have to travel. The next clip's reference expects the pen where its first frame has it.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.4a</span> Speed during a blend of $b$ frames</div>
+  $$\text{joint speed}=\frac{\Delta q_{\max}}{(\hl{b+1})\,\Delta t},\qquad \Delta q_{\max}=\max_i|q_{v_b,i}-q_{u_a,i}|$$
+  <p class="why">$b$ inserted frames split the gap into $b+1$ equal steps of $\Delta t$ each.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.4b</span> Require a slow speed (3 rad/s)</div>
+  $$\frac{\Delta q_{\max}}{(b+1)\,\Delta t}\le\hl{3}\ \tfrac{\text{rad}}{\text{s}}$$
+  <p class="why">A hold-to-start blend re-grasps the pen, so it is done slowly on purpose. This is about half of the normal limit used in stage 5.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.4c</span> Solve for $b+1$</div>
+  $$\hl{b+1}\ \ge\ \frac{\Delta q_{\max}}{3\,\Delta t}$$
+  <p class="why">Multiply both sides by $(b+1)/3$. It is positive, so the inequality keeps its direction: $\frac{\Delta q_{\max}}{3\Delta t}\le b+1$. Read from right to left, that is the line above.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.4d</span> Solve for $b$, then take the smallest integer <span class="rule">R8</span></div>
+  $$b\ \ge\ \frac{\Delta q_{\max}}{3\,\Delta t}\hl{-1}\qquad\Longrightarrow\qquad b=\hl{\Big\lceil}\frac{\Delta q_{\max}}{3\,\Delta t}-1\hl{\Big\rceil}$$
+  <p class="why">$b$ must be a whole number of frames. The smallest whole number that is not below the bound is its ceiling.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.4e</span> Never shorter than 0.5 s, never longer than 1 s</div>
+  $$b\ \leftarrow\ \hl{\max}\big(b,\ 25\big),\qquad\text{reject if } b>50$$
+  <p class="why">Even a small gap gets 25 frames, so the policy has time to settle the grasp. A gap that needs more than 50 frames is too far to bridge.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  $\Delta q_{\max}=1.2$ rad: $1.2/(3\cdot0.02)-1=19$, so $\lceil19\rceil=19$ and $\max(19,25)=25$ frames (0.5 s).
+  $\Delta q_{\max}=2.4$ rad: $2.4/0.06-1=39$, so 39 frames (0.78 s).
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 4.5</span> What it gave</div>
+  $$\text{600 proposed}\ \to\ \text{482 start in a real hold, tested}\ \to\ \hl{99\ \text{pass}}\ \ (98\ \text{after stage-8 pruning})$$
+  <p class="why">About 100 extra edges grew the region where the hand can stay forever from 670 to 15,215 frames (59% of the data). Normal jumps give variety inside one trick. Hold transitions chain one trick into another, like dance moves linked through a neutral pose. The other 118 proposals come from 6 clips without a real hold at the end and were not tested.</p>
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>End of a clip</td><td>Training: <code>reference_end</code> ends the episode. Deploy: the clip clock stops at the last frame.</td><td>The hold is a hub. From it, 98 validated blends lead into other clips.</td></tr>
+<tr><td>Switching to another trick</td><td>A new run, started from that clip's first frame.</td><td>Automatic, inside one run.</td></tr>
+<tr><td>Transition motion</td><td>—</td><td>25–48 blended frames (0.5–1 s), at most 3 rad/s.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">5</span> Kinematic filter and adaptive blend <span class="zh">运动学过滤 · 自适应插值</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/graph/kinematics.py)</span></div>
+<pre>dq     = np.abs(q_v - q_u).max(axis=1)
+needed = np.ceil(dq / (limits.max_joint_vel * dt) - 1.0).astype(int)
+blend  = np.clip(np.maximum(needed, limits.blend_frames), limits.blend_frames, limits.max_blend_frames)
+speed_ok = dq / ((blend + 1) * dt) &lt;= limits.max_joint_vel + 1e-9</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.1</span> A speed limit taken from the data</div>
+  $$\omega_{\max}=\hl{1.5}\times P_{99.9}\big(|\dot q|\big)=1.5\times3.87=5.81\ \tfrac{\text{rad}}{\text{s}}$$
+  <p class="why">While spinning, the recorded hand moved at up to 3.87 rad/s (99.9th percentile, 第99.9百分位数). The factor 1.5 leaves room, but it still rejects jumps that would need a violent snap.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.2</span> The minimal blend (same algebra as 4.4a–d)</div>
+  $$b_{\text{need}}=\Big\lceil\frac{\Delta q_{\max}}{\hl{\omega_{\max}}\,\Delta t}-1\Big\rceil$$
+  <p class="why">Exactly steps 4.4a–4.4d, with 3 rad/s replaced by $\omega_{\max}$.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.3</span> Clip to the allowed range <span class="rule">R11</span></div>
+  $$b=\hl{\clip}\big(b_{\text{need}},\ 2,\ 10\big)$$
+  <p class="why">Every jump gets at least 2 smoothing frames. No jump may take more than 10 frames (0.2 s), because a long blend leaves the recorded motion for too long.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.4</span> Re-check the speed after clipping</div>
+  $$\text{ok}_{\text{speed}}\iff\frac{\Delta q_{\max}}{(\hl{b}+1)\,\Delta t}\le\omega_{\max}$$
+  <p class="why">This can only fail when step 5.3 cut $b$ down to 10. Then even the longest allowed blend is too fast, and the jump is dropped.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.5</span> Joint limits: checking the two ends is enough <span class="hidden">HIDDEN STEP</span></div>
+  $$l=(1-\gamma)\hl{l}+\gamma\hl{l}\ \le\ (1-\gamma)\,q_u+\gamma\,q_v\ \le\ (1-\gamma)\hl{h}+\gamma\hl{h}=h,\qquad \gamma\in[0,1]$$
+  <p class="why">If both end poses are inside the limits $[l,h]$, every straight-line blend between them is inside too. So the code checks only $\bq_u$ and $\bq_v$.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.6</span> The pen cannot teleport <span class="rule">R10</span></div>
+  $$e^{\text{pos}}=\lVert\bp_{\hl{u+1}}-\bp_v\rVert\le\tau_{\text{pos}}(b),\qquad \tau_{\text{pos}}(b)=\min\big(2\,\text{cm}\cdot(1+0.5\,(b-2)),\ 6\,\text{cm}\big)$$
+  $$e^{\text{ax}}=\arccos\big(\bn_{u+1}\cdot\bn_v\big)\le\tau_{\text{ax}}(b),\qquad \tau_{\text{ax}}(b)=\min\big(20^\circ\cdot(1+0.5\,(b-2)),\ 45^\circ\big)$$
+  <p class="why">The data says the pen will be at $\bp_{u+1}$. The jump pretends it is at $\bp_v$. The gap must be small. A longer blend gives the policy more time to move the pen, so the tolerance grows with $b$ up to a cap.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 5.7</span> Build the blended frames <span class="rule">R9</span></div>
+  $$\gamma_i=\frac{i}{b+1},\quad \bq^{(i)}=(1-\gamma_i)\,\bq_u+\gamma_i\,\bq_v,\quad \bp^{(i)}=(1-\gamma_i)\,\bp_u+\gamma_i\,\bp_v,\quad \brho^{(i)}=\operatorname{slerp}(\brho_u,\brho_v,\gamma_i)$$
+  <p class="why">For $i=1,\dots,b$. Joints, pen position and link positions are interpolated in a straight line. The pen quaternion uses slerp, so it stays a valid rotation.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  $\Delta q_{\max}=0.5$ rad: $0.5/(5.81\cdot0.02)-1=3.30$, so $b_{\text{need}}=\lceil3.30\rceil=4$ and $b=\clip(4,2,10)=4$.
+  Speed: $0.5/(5\cdot0.02)=5.0\le5.81$ ✓. Tolerances at $b=4$: $\tau_{\text{pos}}=2\cdot(1+0.5\cdot2)=4$ cm and $\tau_{\text{ax}}=40^\circ$.
+  Blend fractions: $\gamma=0.2,\,0.4,\,0.6,\,0.8$.<br>
+  Real data: 5,403 proposals removed. Among validated jumps, blends of 2/3/4/5/6 frames occur 31,025 / 5,348 / 1,854 / 289 / 10 times.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW for new edges</span><span class="chip c-same">SAME action safety</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>Reference smoothness</td><td>Clips used as recorded. They are smooth because they were captured continuously.</td><td>Every jump point is smoothed with 2–10 blended frames (hold jumps: 25–50).</td></tr>
+<tr><td>Speed and limit safety</td><td>In the action path: residual clipped to ±0.6 rad, EMA with α = 0.5, targets clamped to the joint limits. Training penalises action rate, torque and over-current.</td><td>The same action path (stage 6), plus explicit checks on every new transition before it is ever used.</td></tr>
+<tr><td>Pen continuity</td><td>Guaranteed by the recording.</td><td>Must be checked: 2–6 cm and 20–45°, depending on $b$.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">6</span> The shared part: Wuji's tracking policy <span class="zh">共用部分 · 官方跟踪策略</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/sim/controller.py, copied from deploy/pen_spin)</span></div>
+<pre>raw = sess.run(["actions"], {"obs": obs.reshape(1, -1)})[0]                      # a_k
+residual  = np.clip(raw * self.action_scale, *self.residual_clip)               # r_k
+processed = self.ema_alpha * residual + (1.0 - self.ema_alpha) * self._prev_residual
+return np.asarray(ref.qpos, np.float64) + processed                             # q_target</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.1</span> The observation (155 numbers)</div>
+  $$\bo_k=\big[\,\underbrace{\bq^{\text{ref}}_k,\ \be^{\text{ref}}_k,\ \bl^{\text{ref}}_k}_{\text{command: }20+6+63\,=\,89},\ \bq_k,\ \hl{0.25}\,\dq_k,\ \be_k,\ \ba_{k-1}\,\big]\in\mathbb R^{155}$$
+  <p class="why">The policy sees the reference frame (the command), the live hand state, the live pen, and its own last output. Shape check: $89+20+20+6+20=155$, the same as Wuji's <code>obs_dim</code>.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.2</span> The pen as two shaft points <span class="rule">R16</span></div>
+  $$\be^{\pm}=\bp\pm\hl{0.10}\,\bn,\qquad\text{each coordinate}\ \ \beta(x)=0.15\tanh(x/0.15)$$
+  <p class="why">Two points 10 cm along the shaft encode both position and direction in 6 numbers. The tanh keeps a lost pen from producing huge inputs: $0.03\to0.0296$ (almost unchanged), $0.12\to0.0996$ (squashed).</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.3</span> Raw action</div>
+  $$\ba_k=\hl{\pi_\theta}(\bo_k)\in\mathbb R^{20}$$
+  <p class="why">$\pi_\theta$ is an MLP (Multi-Layer Perceptron, 多层感知机) with hidden layers 1024-512-256, loaded from Wuji's ONNX (Open Neural Network Exchange, 开放神经网络交换格式) file. There is one file per motion group.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.4</span> Scale and clip <span class="rule">R11</span></div>
+  $$\br_k=\hl{\clip}\big(0.5\,\ba_k,\ -0.6,\ 0.6\big)$$
+  <p class="why">The policy is allowed to correct each joint by at most ±0.6 rad.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.5</span> Smooth over time <span class="rule">R12</span></div>
+  $$\rb_k=\hl{0.5}\,\br_k+0.5\,\rb_{k-1}$$
+  <p class="why">The EMA (Exponential Moving Average, 指数滑动平均) removes jitter between control ticks. That protects the real hand's motors.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 6.6</span> The joint target</div>
+  $$\bq^{\text{target}}_k=\hl{\bq^{\text{ref}}_k}+\rb_k$$
+  <p class="why">The policy is a corrector around the reference. The hand's PD (Proportional-Derivative, 比例-微分) position actuators then track the target for 4 physics steps of 0.005 s, which gives 50 Hz control.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example (one joint)</div>
+  Reference 0.80 rad, raw output $a=2.0$: $r=\clip(1.0,-0.6,0.6)=0.6$; $\bar r_1=0.5\cdot0.6+0=0.30$; target $=1.10$ rad.
+  If $a$ stays 2.0: $\bar r_2=0.5\cdot0.6+0.5\cdot0.30=0.45$, target $1.25$ rad, and $\bar r\to0.6$ in the limit.
+</div>
+
+<div class="box mean">
+  <div class="box-title">💡 Meaning: two consequences used later</div>
+  <ul>
+    <li><b>Any test of a reference must include the policy.</b> Open-loop replay (no correction) drops the pen within about 0.2 s, even on the original clips. With the policy, the pen stays within about 1.1 cm of the reference on average. → stage 7.</li>
+    <li><b>The live joints can sit far from the reference while everything is fine.</b> So "am I lost?" must be judged by the pen, not by the joints. → stage 9.</li>
+  </ul>
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-same">SAME</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>Policy</td><td>Trained with PPO (Proximal Policy Optimization, 近端策略优化): 4,096 parallel environments, about 10,000 iterations, one policy per motion group.</td><td>The same 5 released ONNX policies, weights unchanged. No training at all.</td></tr>
+<tr><td>Simulator</td><td>mjlab on MuJoCo Warp (GPU), with heavy DR (Domain Randomization, 域随机化): friction 0.35–1.4, pen mass 0.4–1.6×, PD gains, encoder bias, disturbance forces, observation noise.</td><td>A standalone MuJoCo scene on CPU with the same essentials: fixed wrist, 0.005 s × 4, implicitfast integrator, condim-4 contacts, 30 g pen. No randomization.</td></tr>
+<tr><td>Rewards</td><td>Pen position (weight 2), pen axis points (8), link positions (1), joint positions (1); penalties for action rate, torque, over-current and self-collision.</td><td>Not needed, because nothing is trained.</td></tr>
+<tr><td>Obs / action path</td><td>155-D observation; residual × 0.5, clip ±0.6, EMA 0.5.</td><td>Identical. Check: the policy completes 30 of its 40 own clips in our scene.</td></tr>
+<tr><td>Reference it receives</td><td>Frame $k$ of one clip.</td><td>The frame chosen by the graph controller (stage 9).</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">7</span> Test every jump in simulation <span class="zh">仿真验证 · 每条跳转单独测试</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/sim/validator.py)</span></div>
+<pre>stitched = rollout(self.scene, self.controller, ref_jump, start, thresholds=cfg.thresholds)
+baseline = rollout(self.scene, self.controller, ref_base, start, thresholds=cfg.thresholds)
+allowed  = cfg.relative_factor * max(baseline.mean_pos_err(), cfg.relative_floor_m)
+ok = (not stitched.terminated) and tail_ok and stitched.mean_pos_err() &lt;= allowed</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.1</span> One start state</div>
+  $$\text{start}=\big(\bq_u,\ \dq_u,\ \bp_u,\ \brho_u,\ \dot\bp_u,\ \bom_u\big)$$
+  <p class="why">The hand and the pen are placed exactly as recorded at frame $u$. Both test runs start from this same state, so the comparison is fair.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.2</span> Two references from the same start</div>
+  $$\mathcal R^{J}=\big[\,u,\ \underbrace{\star\cdots\star}_{b\ \text{blended}},\ \hl{v,\ v+1,\ \dots,\ v+H-1}\,\big],\qquad \mathcal R^{B}=\big[\,u,\ u+1,\ \dots,\ u+L\,\big]$$
+  <p class="why">$\mathcal R^J$ takes the jump. $\mathcal R^B$ (baseline) continues the original clip for the same length $L$. $H=40$ frames (0.8 s); hold jumps use 50.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.3</span> Errors after every tick <span class="rule">R10</span></div>
+  $$e^{\text{pos}}_k=\lVert\bp^{\text{sim}}_k-\bp^{\text{ref}}_k\rVert,\qquad e^{\text{ax}}_k=\arccos\big(\bn^{\text{sim}}_k\cdot\bn^{\text{ref}}_k\big)$$
+  <p class="why">Only the pen is judged. The pen is the task. The joints are free to deviate (stage 6).</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.4</span> Fail fast, with Wuji's own thresholds</div>
+  $$\text{fail}\iff\exists\,k:\ e^{\text{pos}}_k>\hl{5\ \text{cm}}\ \ \lor\ \ e^{\text{ax}}_k\ge\hl{60^\circ}$$
+  <p class="why">These are exactly the termination limits of Wuji's training environment. If Wuji would call it a failure, so do we.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.5</span> It must end well</div>
+  $$\tfrac15\textstyle\sum_{\text{last }5}e^{\text{pos}}_k\le\hl{3\ \text{cm}},\qquad \tfrac15\sum_{\text{last }5}e^{\text{ax}}_k\le\hl{30^\circ}$$
+  <p class="why">Surviving is not enough. At the end of the test the pen must be back on its reference, ready for whatever comes next.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 7.6</span> No worse than the original clip</div>
+  $$\overline{e^{\text{pos}}}\big(\mathcal R^{J}\big)\ \le\ \hl{1.5}\cdot\max\!\Big(\overline{e^{\text{pos}}}\big(\mathcal R^{B}\big),\ \hl{1\ \text{cm}}\Big)$$
+  <p class="why">The clips are retargeted human motion, so even they are not perfectly trackable. The fair question is: "is the jump about as executable as just continuing the clip?" The 1 cm floor stops a near-perfect baseline from making the test impossibly strict.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  Baseline mean error 0.8 cm → floor → 1.0 cm → allowed $1.5\cdot1.0=1.5$ cm.
+  Stitched run: mean 1.2 cm, last-5 mean 1.6 cm, never above 5 cm → <b>pass</b>.
+  Another stitched run hits 5.2 cm at tick 18 → <b>fail</b> ("terminated: pen position").<br>
+  Real data: 40,208 jumps tested, <b>38,624 pass (96%)</b>, about 60 ms per jump on one CPU core. Hold jumps are harder: 482 tested, 99 pass. Most of their failures are the pen moving more than 5 cm (244).
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>What is checked</td><td>The policy, during training, on the fixed clips.</td><td>Each new edge, with the frozen policy.</td></tr>
+<tr><td>Pass / fail rule</td><td>The episode terminates at 5 cm / 60°. Success = reaching <code>reference_end</code>.</td><td>No termination, end within 3 cm / 30°, and at most 1.5× the baseline error.</td></tr>
+<tr><td>Cost</td><td>GPU hours of PPO per motion group.</td><td>About 60 ms CPU per edge: 40,208 edges ≈ 1.5 h on 2 cores.</td></tr>
+<tr><td>Robustness</td><td>Trained under DR and noise.</td><td>One nominal scene, no randomization. This is a limitation.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">8</span> Loops, the spinnable core and end-to-end pruning <span class="zh">环路 · 强连通核心 · 端到端剪枝</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/graph/loops.py, sim/verify.py)</span></div>
+<pre>dist, pred = dijkstra(adj, directed=True, indices=v, return_predecessors=True, limit=limit)
+back = _path_from_predecessors(pred, v, u)        # cheapest way from v back to u
+loop = _loop_from_nodes(graph, back, jumps)        # ... closed by the jump u -> v
+blamed = _blame_jump(graph, traj, res.termination_step, window=100)   # after a failed replay</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 8.1</span> The graph and its edge costs</div>
+  $$G=(V,E),\qquad c(t\to t+1)=1,\qquad c(u\to v)=\hl{25}+\hl{10}\,C(u,v)$$
+  <p class="why">$V$ = the 25,885 frames. $E$ = recorded steps plus validated jumps. With these costs a path's cost is roughly its number of frames, and every jump "costs" like 25 + 10C frames. So the search prefers to stay on recorded motion and jumps only when it must. Example: $C=2$ costs like 45 frames.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 8.2</span> Close a loop through a jump <span class="rule">R13</span></div>
+  $$\text{loop}(u\to v)=\underbrace{\big(v\rightsquigarrow u\big)}_{\text{Dijkstra}}\ +\ \hl{(u\to v)}$$
+  <p class="why">A single clip is a chain, so every loop needs at least one jump. For a jump $u\to v$, the cheapest path from $v$ back to $u$, followed by the jump itself, is the cheapest loop that uses this jump.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 8.3</span> Skip jumps that can never be on a loop <span class="rule">R14</span> <span class="hidden">HIDDEN STEP</span></div>
+  $$u\to v\ \text{is on a loop}\iff \operatorname{SCC}(u)=\operatorname{SCC}(v)\ \ \text{and}\ \ |\operatorname{SCC}(u)|>1$$
+  <p class="why">(⇒) If a loop contains both, each reaches the other, so they are in one SCC. (⇐) If they are in one SCC, a path $v\rightsquigarrow u$ exists, and adding the edge $u\to v$ closes a cycle. Computing SCCs once removes most Dijkstra calls.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 8.4</span> Score a loop by how much the pen turns <span class="rule">R17</span></div>
+  $$\Phi=\sum_{t}\hl{\angle\big(\brho_t,\brho_{t+1}\big)},\qquad\text{keep }\Phi\ge180^\circ,\ \ \text{rank by }\Phi/T$$
+  <p class="why">The loop search sums the small change of pen orientation between consecutive frames. This favours loops where the pen keeps moving. $\Phi$ includes roll about the shaft, so it is a generous score. Stage 11 reports the stricter shaft-only rotation $\Theta$ instead.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 8.5</span> Replay whole loops and prune what breaks them</div>
+  $$\text{replay fails at tick }k^{*}\ \Rightarrow\ \text{reject the last jump in }\big[\,k^{*}-\hl{100},\ k^{*}\,\big]\ \Rightarrow\ \text{search again}$$
+  <p class="why">Each jump passed a 0.8 s local test. But small errors can add up over a 15 s loop. The local test is necessary, not sufficient. So the top 30 loops are replayed in full, the guilty jump is removed, and loops are searched again. This ran for 5 rounds.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Result</div>
+  Largest SCC: <b>15,215 frames (59%)</b>, from which the hand never has to stop. 151 loops with Φ ≥ 180°. 16 of the top 30 complete a full lap end to end.<br>
+  Best loop: 752 recorded frames plus blends = <b>16.4 s per lap</b>, 9 jumps, 3 clips (<code>02/clip_003</code>, <code>03/clip_002</code>, <code>03/clip_003</code>). Shaft rotation Θ = <b>1,709° per lap ≈ 104°/s</b>. Its jump edges cost 35–196, so the planner pays for 9 jumps but gains a loop that never ends.
+</div>
+
+<div class="box fixbox">
+  <div class="box-title"><span class="fix">FIX</span> Rotation per lap and speed</div>
+  An earlier message said 2,360° per lap. That is $\Phi$, the full orientation change including roll about the shaft. Shaft-only rotation, which is what spinning means, is 1,709° per lap.
+  It also said 114°/s. That divided by 15.0 s of recorded frames and forgot the blended frames. A lap really takes 16.4 s, so the speed is about 104°/s (103°/s measured over the 84.7 s run).
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-new">NEW</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>Cycles</td><td>None. Every clip is a chain that ends in a hold.</td><td>151 loops (Φ ≥ 180°) and 21 non-trivial SCCs.</td></tr>
+<tr><td>Longest motion</td><td>One clip: at most 21.8 s of motion in the data. The longest clip the policy completes in our scene: 18.0 s.</td><td>A loop can repeat without end: 84.7 s tested (stage 11).</td></tr>
+<tr><td>Checking a whole motion</td><td>Training on that clip.</td><td>A full replay plus pruning of the blamed jump.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">9</span> The controller: nearest point → plan → circle <span class="zh">闭环控制 · 最近点 → 规划 → 绕环</span></h2>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/graph/planner.py, MotionMatchingController.step)</span></div>
+<pre>lost = self._pen_lost(state)                       # pen &gt; 3 cm or &gt; 40 deg off its reference
+if self._plan and lost: self._plan = []            # drop the plan
+d, idx = self._nearest(state)                      # nearest frame (prefer the core)
+if not self._plan and self.goal_loop is not None:
+    self._plan = self._plan_loop(node)             # Dijkstra into the loop, then one lap</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.1</span> Measure and embed the live state</div>
+  $$s_k=\big(\bq_k,\dq_k,\bp_k,\brho_k,\dots\big)\ \longmapsto\ \bff(s_k)\quad(\text{same }\boldsymbol\mu,\boldsymbol\sigma,\mathbf w\text{ as stage 2})$$
+  <p class="why">The live state goes through the same featurizer as the data, so it can be compared with every recorded frame. On the real hand the pen pose comes from the camera, the same signal Wuji's deploy code uses.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.2</span> Find the nearest recorded frame <span class="rule">R15</span></div>
+  $$v^{*}=\arg\min_{v}\ \lVert\bff(s_k)-\bff_v\rVert,\qquad\text{use }v^{*}_{\text{core}}\ \text{if}\ \ d\big(s_k,v^{*}_{\text{core}}\big)\le d\big(s_k,v^{*}\big)+\hl{2\delta}$$
+  <p class="why">This is your original "find the closest point" step. If a frame inside the core (the 59% SCC) is almost as close, it is preferred, because from the core there is always a way to keep going.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.3</span> Plan into the loop, then circle it <span class="rule">R13</span></div>
+  $$\text{plan}=\hl{\operatorname{Dijkstra}\big(v^{*}\rightsquigarrow\mathcal L\big)},\ \ \text{then}\ \ \mathcal L,\ \mathcal L,\ \mathcal L,\dots$$
+  <p class="why">The path enters the best verified loop $\mathcal L$ at its cheapest frame. After that the controller replays the loop lap after lap, starting from the entry frame.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.4</span> Feed the plan to Wuji's policy</div>
+  $$\bq^{\text{ref}}_k=\bq\big(\text{plan}[k]\big)\ \ \text{(blended at jumps)}\quad\Longrightarrow\quad \bq^{\text{target}}_k=\bq^{\text{ref}}_k+\rb_k\quad(\text{stage 6})$$
+  <p class="why">The planner only decides which frame to track next. The low-level work is exactly Wuji's policy.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.5</span> Re-match only when the pen is lost</div>
+  $$\text{lost}\iff\lVert\bp^{\text{sim}}_k-\bp^{\text{ref}}_k\rVert>\hl{3\ \text{cm}}\ \ \lor\ \ \arccos\big(\bn^{\text{sim}}_k\cdot\bn^{\text{ref}}_k\big)>\hl{40^\circ}$$
+  <p class="why">If lost: drop the plan, go back to 9.2 and 9.3. The first version re-matched on the full 67-D distance. It said "lost" almost every tick, because the policy keeps the joints up to 0.6 rad off the reference by design (stage 6), and it kept switching frames for no reason. Judging by the pen fixed this.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 9.6</span> Without a goal loop: escape before a clip ends</div>
+  $$\text{if}\quad \text{active frames left}<\hl{250}\ \ \wedge\ \ \text{ticks since the last jump}\ge50$$
+  $$\text{then}\quad \operatorname{Dijkstra}\ \to\ \text{a frame with}\ \ge250\ \text{active frames ahead}$$
+  <p class="why">This is setting C in stage 11. It keeps the hand moving through validated jumps but does not aim for a particular loop.</p>
+</div>
+
+<div class="box ex">
+  <div class="box-title">🔢 Example</div>
+  Pen 2 cm and 25° off its reference → not lost → keep following the plan.
+  Pen 4 cm off → lost → nearest frame again → new path into the loop.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-changed">CHANGED</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official deploy (deploy/pen_spin)</th><th class="ours">This project</th></tr>
+<tr><td>Which frame to track</td><td>$k=\operatorname{round}\big((t_{\text{now}}-t_0)/\Delta t\big)$: wall-clock time since start.</td><td>Chosen from the measured state: nearest frame + plan.</td></tr>
+<tr><td>Start</td><td>Hold on the clip's first frame, then the operator starts the clip.</td><td>Any state.</td></tr>
+<tr><td>End</td><td>The clip clock stops at the last frame (done, or hold the last frame).</td><td>Loops never end.</td></tr>
+<tr><td>After a disturbance</td><td>Keeps following the clock.</td><td>Re-matches to the nearest frame and re-plans.</td></tr>
+<tr><td>Pen input</td><td>Camera-tracked marker tags → wrist-local pen pose.</td><td>The same signal (from simulation here).</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">10</span> From the graph to a policy <span class="zh">从运动图到策略</span></h2>
+
+<div class="box key">
+  <div class="box-title">Two routes</div>
+  <b>Route A, export for Wuji's PPO.</b> Loops and walks on the validated graph are written as a new clip group, <code>06_graph_stitched</code> (30 clips, 12.3 min). It uses Wuji's own clip format with SHA-256 digests and a recipe file, so Wuji's training command works unchanged. Status: ready, not trained yet (it needs the GPU).<br>
+  <b>Route B, BC (Behavior Cloning, 行为克隆).</b> Copy what "graph + Wuji policy" does into one network that needs no reference. Steps 10.1–10.4 below.
+</div>
+
+<div class="box sol">
+  <div class="box-title">✍ What the code writes <span class="small">(src/penspin_graph/policy/bc.py)</span></div>
+<pre>obs_all.append(bc_observation(prev.qpos, prev.qvel, prev.pen_pose))   # 46 numbers, no reference
+res_all.append(res.targets[k] - prev.qpos)                            # what the expert commanded
+loss = torch.nn.functional.mse_loss(model(X[b]), Y[b])</pre>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 10.1</span> Collect expert data</div>
+  $$\bo^{\text{BC}}_k=\big[\bq_k,\ 0.25\,\dq_k,\ \be_k\big]\in\mathbb R^{\hl{46}},\qquad \Delta\bq_k=\bq^{\text{target}}_k-\bq_k$$
+  <p class="why">200 random walks on the graph are executed with Wuji's policy. Each tick stores what the robot could measure and what the expert commanded. Shape check: $20+20+6=46$. The reference is <i>not</i> in the observation, and that is the point. Result: 30,323 samples.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 10.2</span> Normalise inputs and outputs <span class="rule">R3</span></div>
+  $$\hat\bo=\frac{\bo-\boldsymbol\mu_o}{\boldsymbol\sigma_o},\qquad \widehat{\Delta\bq}=\frac{\Delta\bq}{\hl{s_{\max}}},\quad s_{\max}=\max|\Delta q|$$
+  <p class="why">The same z-score idea as stage 2. The outputs are scaled into $[-1,1]$ so the network trains well.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 10.3</span> Fit by least squares</div>
+  $$\min_{\phi}\ \frac1N\sum_{k=1}^{N}\big\lVert \hl{g_\phi}(\hat\bo_k)-\widehat{\Delta\bq}_k\big\rVert^2$$
+  <p class="why">This is regression: input $\hat\bo$, target $\widehat{\Delta\bq}$. $g_\phi$ is an MLP 512-512-256 with ELU (Exponential Linear Unit, 指数线性单元) activations, trained for 40 epochs.</p>
+</div>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 10.4</span> Run it</div>
+  $$\bq^{\text{target}}_k=\bq_k+\hl{s_{\max}}\,g_\phi(\hat\bo_k)$$
+  <p class="why">Undo the output scaling and add the result to the current joints. The network is also exported as an ONNX file.</p>
+</div>
+
+<div class="box warn">
+  <div class="box-title">⚠ Result and why it is weaker</div>
+  BC survives 3.6 s on average and drops the pen in 55% of runs. Graph + Wuji policy survives 27–29 s (stage 11).
+  This is expected: plain BC only sees expert states. A small error leads to states it never saw (covariate shift, 协变量偏移).
+  The next step is DAgger (Dataset Aggregation, 数据集聚合), with graph + Wuji policy as the expert, or PPO on the route-A clips.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-changed">CHANGED</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>How the policy is learned</td><td>PPO with rewards, from scratch, one policy per motion group.</td><td>(A) The same PPO, trained on stitched references that are already validated. (B) Imitation of graph + Wuji policy.</td></tr>
+<tr><td>Reference at run time</td><td>Needed.</td><td>(A) Needed. (B) Not needed.</td></tr>
+<tr><td>Compute</td><td>GPU, about 10,000 iterations.</td><td>(A) The same. (B) CPU, minutes.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">11</span> Evaluation: original vs stitched <span class="zh">效果对比</span></h2>
+
+<div class="step">
+  <div class="step-h"><span class="badge">Step 11.1</span> The metrics</div>
+  $$\Theta=\sum_k\arccos\big(\bn_k\cdot\bn_{k+1}\big),\qquad \text{still spinning}\iff\Theta_{\text{last }10\text{ s}}>\hl{90^\circ}$$
+  <p class="why">$\Theta$ counts only the shaft direction, so it is stricter than the loop score $\Phi$ of step 8.4. "Survival" ends when the pen falls 12 cm below its start height, or when the tracking error trips Wuji's 5 cm / 60° limits.</p>
+</div>
+
+<div class="box warn">
+  <div class="box-title">⚠ How each number was measured</div>
+  For the original clips and for the long loop run, Θ is the reference's shaft rotation over the span the policy tracked successfully. During that span the pen stays within 5 cm / 60° of the reference, about 1.1 cm on average. For the random starts, Θ is measured on the simulated pen itself. Everything uses the same scene and Wuji's same policy.
+</div>
+
+<div class="keep"><h3>Endurance: Wuji's policy on its own clips vs the same policy on our best loop</h3>
+<table>
+<tr><th>metric</th><th>Wuji official: own clips</th><th>this project: best loop</th><th>gain</th></tr>
+<tr><td>clips completed in our scene</td><td>30 / 40</td><td>—</td><td></td></tr>
+<tr><td>longest continuous spinning</td><td>18.0 s (<code>03/clip_007</code>)</td><td><b>84.7 s</b> (5.2 laps)</td><td>4.7×</td></tr>
+<tr><td>shaft rotation in one run</td><td>1,476°</td><td><b>8,709°</b> (24 turns)</td><td>5.9×</td></tr>
+<tr><td>average rotation speed</td><td>53°/s (mean over clips), 108°/s (fastest clip)</td><td><b>103°/s</b>, sustained for 84.7 s</td><td>≈ 2× the mean; about the fastest clip's speed</td></tr>
+</table></div>
+
+<div class="keep"><h3>From 20 random moving states, 30 s each (all with Wuji's policy at the low level)</h3>
+<table>
+<tr><th>setting</th><th>mean Θ</th><th>Θ in last 10 s</th><th>still spinning</th><th>drops</th><th>jumps / run</th></tr>
+<tr><td>B: nearest frame + follow its clip (no graph)</td><td>555°</td><td>72°</td><td>2 / 20</td><td>10%</td><td>0</td></tr>
+<tr><td>C: + validated jumps (escape rule, 9.6)</td><td>902°</td><td>123°</td><td>7 / 20</td><td>10%</td><td>3.7</td></tr>
+<tr><td><b>D: + seek and circle the best loop (9.2–9.5)</b></td><td><b>1,385°</b></td><td><b>384°</b></td><td><b>8 / 20</b></td><td>15%</td><td>6.4</td></tr>
+</table></div>
+<p class="small">Wuji's own pipeline cannot start from a random state, so B (its policy plus plain nearest-frame matching) is the fair baseline here. D beats B in 14 of 20 starts, ties in 3 and is worse in 3. In the 3 ties no validated path into the loop existed, so D did exactly what B did.</p>
+
+<div class="box fixbox">
+  <div class="box-title"><span class="fix">FIX</span> The baseline</div>
+  An earlier message gave Wuji's best as 21.8 s / 1,584°. Those are the reference lengths of two clips that the policy fails in our scene, at 9.5 s and 1.2 s. The fair baseline is the longest clip it completes: <code>03_continuous_multi_axis/clip_007</code>, 18.0 s, 1,476°.
+</div>
+
+<div class="keep"><div class="cmp-title">⇄ Wuji official vs this project <span class="chip c-changed">CHANGED</span></div>
+<table class="cmp">
+<tr><th></th><th class="wuji">Wuji official</th><th class="ours">This project</th></tr>
+<tr><td>What "good" means</td><td>Track one given clip to its end.</td><td>Keep the pen spinning from any start.</td></tr>
+<tr><td>Best result (our scene)</td><td>18.0 s, 1,476°.</td><td>84.7 s, 8,709°.</td></tr>
+<tr><td>Weak points</td><td>Fixed length and fixed start.</td><td>More drops (15% vs 10%), simulation only, no randomization, BC still weak.</td></tr>
+</table></div>
+
+<!-- ======================================================================= -->
+<h2><span class="num">∑</span> Summary <span class="zh">总结</span></h2>
+<table>
+<tr><th style="width:5%">#</th><th style="width:44%">Formula</th><th>What happened</th><th style="width:12%">vs Wuji</th></tr>
+<tr><td>1</td><td>$\bp_t=R(\brho^{w}_t)^{\top}(\bp^{\text{world}}_t-\mathbf t^{w}_t)$</td><td>Clips moved into the wrist frame; velocities and resting flags added.</td><td><span class="chip c-same">SAME</span></td></tr>
+<tr><td>2</td><td>$\bff_t=\mathbf w\odot(\bx_t-\boldsymbol\mu)/\boldsymbol\sigma$, distances in $\delta$</td><td>Every frame became a comparable 67-D point.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>3</td><td>$C(u,v)=\frac1\delta\sum_j\lambda_j\lVert\bff_{u+1+j}-\bff_{v+j}\rVert\le6$</td><td>101,934 candidate jumps.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>4</td><td>$b=\max\big(25,\lceil\Delta q_{\max}/(3\Delta t)-1\rceil\big)$</td><td>600 hold → start transitions; 98 survive.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>5</td><td>$b=\clip\big(\lceil\Delta q_{\max}/(\omega_{\max}\Delta t)-1\rceil,2,10\big)$</td><td>5,403 removed; every jump smoothed.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>6</td><td>$\bq^{\text{target}}=\bq^{\text{ref}}+\operatorname{EMA}\big(\clip(0.5\,\ba)\big)$</td><td>Wuji's policy, reused unchanged.</td><td><span class="chip c-same">SAME</span></td></tr>
+<tr><td>7</td><td>$\overline{e}(\mathcal R^J)\le1.5\max\big(\overline{e}(\mathcal R^B),1\,\text{cm}\big)$</td><td>38,624 of 40,208 jumps pass.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>8</td><td>$c=25+10C$; Dijkstra; SCC; prune</td><td>15,215-frame core; 151 loops; best 16.4 s lap.</td><td><span class="chip c-new">NEW</span></td></tr>
+<tr><td>9</td><td>$v^*=\arg\min_v\lVert\bff(s)-\bff_v\rVert$; lost if &gt; 3 cm / 40°</td><td>Start anywhere, plan into a loop, circle it.</td><td><span class="chip c-changed">CHANGED</span></td></tr>
+<tr><td>10</td><td>$\min_\phi\frac1N\sum\lVert g_\phi(\hat\bo)-\widehat{\Delta\bq}\rVert^2$</td><td>BC trained (weak); PPO export ready.</td><td><span class="chip c-changed">CHANGED</span></td></tr>
+<tr><td>11</td><td>$\Theta=\sum\arccos(\bn_k\cdot\bn_{k+1})$</td><td>18.0 s → 84.7 s; 1,476° → 8,709°.</td><td><span class="chip c-changed">CHANGED</span></td></tr>
+</table>
+
+<div class="box mean">
+  <div class="box-title">💡 The whole project in three sentences</div>
+  Wuji's policy already knows how to keep a pen on a reference, but each reference is one finite clip.
+  This project changes only the reference: it links frames of all clips into a graph and keeps only the links that Wuji's own policy can execute in simulation.
+  The controller then picks the reference from the hand's state instead of the clock, so it can start anywhere and loop forever.
+</div>
+
+</body>
+</html>

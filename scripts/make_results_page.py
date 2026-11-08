@@ -140,7 +140,7 @@ def main() -> None:
 
 <h2>3. Loops and the spinnable core <span class="zh">环路与强连通核心</span></h2>
 <p>Largest strongly connected component: <b>{loops.get('largest_scc', '-')}</b> frames ({loops.get('n_scc_gt1', '-')} non-trivial components). Loops are closed walks through recorded frames and validated jumps; they are ranked by pen rotation per second.</p>
-<table><tr><th>#</th><th>frames</th><th>s</th><th>jumps</th><th>pen rotation (deg)</th><th>deg/s</th><th>demos used</th></tr>{loop_rows or '<tr><td colspan=7>no loops with the current thresholds</td></tr>'}</table>
+<table><tr><th>#</th><th>recorded frames</th><th>s (without blends)</th><th>jumps</th><th>orientation change &Phi; (deg, incl. roll)</th><th>&Phi;/s</th><th>demos used</th></tr>{loop_rows or '<tr><td colspan=7>no loops with the current thresholds</td></tr>'}</table>
 {img('loop_0.png', 'Best loop: which source frame is used when (red lines = jumps) and the pen shaft direction over time.')}
 {img('loop_0.gif', 'Best loop replayed in MuJoCo with the tracking policy (green ghost = stitched reference pen).')}
 {('<p>Replay of the best loop: <code>' + html.escape(replay.get('summary', '')) + '</code></p>') if replay else ''}

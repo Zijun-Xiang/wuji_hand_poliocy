@@ -4,7 +4,7 @@
 
 * **What was built.** Every frame of Wuji's 40 pen-spinning demos is a point in a 67-D space. Frames are chained inside each demo, and **38,624 transitions (跳转)** that were tested in simulation link different demos and different moments of the same demo. A controller finds the nearest point to the current hand state, plans into a verified **loop (环路)**, and circles it with Wuji's own tracking policy doing the low-level control.
 * **How it differs from the original.** Wuji's original pipeline can only play one recorded clip from its first frame until the clip ends. Our version can start from any state, switch between demos, and spin indefinitely.
-* **Gains, all in simulation.** Continuous spinning went from **18.0 s to 84.7 s (4.7x)**. Pen-shaft rotation per run went from **1,476° to 8,709° (5.9x)**. The rotation speed of the best loop is **114°/s**, while the clips average 53°/s. From random states, a 30 s test gives **2.5x more rotation** than plain nearest-frame tracking, and **4x as many runs are still spinning after 20 s** (8/20 vs 2/20). The price is a slightly higher drop rate (15% vs 10%).
+* **Gains, all in simulation.** Continuous spinning went from **18.0 s to 84.7 s (4.7x)**. Pen-shaft rotation per run went from **1,476° to 8,709° (5.9x)**. The best loop turns the shaft at about **103°/s**, sustained for 84.7 s. The clips average 53°/s, and the fastest single clip reaches 108°/s. From random states, a 30 s test gives **2.5x more rotation** than plain nearest-frame tracking, and **4x as many runs are still spinning after 20 s** (8/20 vs 2/20). The price is a slightly higher drop rate (15% vs 10%).
 
 ---
 
@@ -59,7 +59,7 @@ All numbers come from the same MuJoCo scene and the same Wuji tracking policy. R
 |---|---|---|---|
 | continuous spinning | 18.0 s | **84.7 s** (5.2 laps of 16.4 s) | 4.7x |
 | shaft rotation in one run | 1,476° | **8,709° (24 turns)** | 5.9x |
-| average rotation speed | 53°/s (clip mean), 108°/s (fastest clip) | **114°/s** | 2.2x vs mean |
+| average rotation speed | 53°/s (clip mean), 108°/s (fastest clip) | **103°/s**, sustained for 84.7 s | ≈2x the mean; about the fastest clip |
 | original clips completed by Wuji's policy in this scene | 30 / 40 | — | — |
 
 **From 20 random moving states, 30 s each (随机初始状态)**

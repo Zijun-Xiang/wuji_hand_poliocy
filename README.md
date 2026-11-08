@@ -60,7 +60,7 @@ whole thing is distilled into a policy.
 | simulation validation | **40,208 jumps tested, 38,624 passed (96%)** with Wuji's released PPO tracking policy in the loop (≈60 ms per jump per core) |
 | spinnable core | largest SCC = **15,215 frames (59% of the data)** can be revisited forever using only validated moves |
 | loops | 151 closed walks; 16 of the top 30 complete a full lap end to end in sim |
-| best loop | 16.4 s lap, 9 jumps, 3 demos stitched, 1,709° of pen-shaft rotation per lap (114°/s) |
+| best loop | 16.4 s lap, 9 jumps, 3 demos stitched, 1,709° of pen-shaft rotation per lap (≈104°/s; 103°/s sustained over the 84.7 s run) |
 
 **Compared with Wuji's original pipeline** (same scene, same tracking policy; rotation = pen-shaft rotation; see [`docs/SUMMARY.md`](docs/SUMMARY.md)):
 
