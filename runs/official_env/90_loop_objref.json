@@ -1,0 +1,36 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/90_graph_loop.json",
+  "checkpoint": null,
+  "policy_map": [
+    "02_continuous_single_axis=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/02_continuous_single_axis/model.pt",
+    "03_continuous_multi_axis=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/03_continuous_multi_axis/model.pt"
+  ],
+  "zero_policy": false,
+  "device": "cpu",
+  "seconds": 5.331955432891846,
+  "steps": 145,
+  "clips": [
+    {
+      "clip": "90_graph_loop/clip_001",
+      "clip_index": 0,
+      "clip_s": 98.52,
+      "completed": false,
+      "fail_reason": "shaft>=60deg",
+      "tracked_s": 1.92,
+      "rotation_sim_deg": 61.01167562913606,
+      "rotation_ref_deg": 69.83316547053101,
+      "mean_pos_err_cm": 0.9023663898309072
+    },
+    {
+      "clip": "90_graph_loop/clip_002",
+      "clip_index": 1,
+      "clip_s": 328.40000000000003,
+      "completed": false,
+      "fail_reason": "shaft>=60deg",
+      "tracked_s": 1.92,
+      "rotation_sim_deg": 61.01167562913606,
+      "rotation_ref_deg": 69.83316547053101,
+      "mean_pos_err_cm": 0.9023663898309072
+    }
+  ]
+}

@@ -204,7 +204,7 @@ See [`deploy/README.md`](deploy/README.md): `deploy/pen_policy_graph.py` wraps W
 official `pen-policy` runtime and switches the released policy per frame;
 `deploy/clips/` holds the best loop in the official clip schema. The camera-based pen
 pose is required: with the reference pen pose fed to the policy instead, Wuji's own clips
-fail within 2–7 s in Wuji's simulator (`runs/official_env/03_objref.json`).
+fail within 0.7–7 s in Wuji's simulator, 12 of 13 clips (`runs/official_env/02_objref.json`, `03_objref.json`); our loop fails at 1.9 s (`90_loop_objref.json`).
 
 ### Train PPO on the stitched references (GPU, wuji-mjlab)
 

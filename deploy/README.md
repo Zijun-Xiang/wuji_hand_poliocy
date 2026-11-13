@@ -13,7 +13,7 @@ within 5 s (`runs/official_env/90_loop_pol02.json`, `90_loop_pol03.json`).
 | Item | Why | Without it |
 |---|---|---|
 | Wuji Hand 2 (right), USB or UDP | the hand | nothing runs |
-| Hikrobot camera + MVS SDK, 250 mm AprilTag pen, wrist tag | the policy's 6 numbers of pen pose | **the policy drops the pen in 2–7 s** — measured in Wuji's simulator with the reference pen pose fed instead of the real one (`runs/official_env/03_objref.json`); this holds for Wuji's own clips, not only for our loop |
+| Hikrobot camera + MVS SDK, 250 mm AprilTag pen, wrist tag | the policy's 6 numbers of pen pose | **the policy drops the pen within seconds** — measured in Wuji's simulator with the reference pen pose fed instead of the real one: 12 of 13 official clips fail in 0.7–7 s and our loop at 1.9 s (`runs/official_env/02_objref.json`, `03_objref.json`, `90_loop_objref.json`) |
 | Linux host with `pixi` (Wuji's instructions) — or Windows with Python ≥ 3.11 and `wuji_sdk==2026.11.9` (first release with a Windows wheel; same `SdkManager / ConnectOptions / MitParam / JointCommand` API the adapter uses) | runs the runtime | — |
 
 `--obj-from-ref` and `--no-hardware` exist for dry runs only. `--obj-from-ref` on the real

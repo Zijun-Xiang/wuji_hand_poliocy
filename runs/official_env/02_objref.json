@@ -1,0 +1,55 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/02_continuous_single_axis.json",
+  "checkpoint": "src/wuji_mjlab/tasks/pen_spin/data/checkpoints/02_continuous_single_axis/model.pt",
+  "policy_map": null,
+  "zero_policy": false,
+  "device": "cpu",
+  "seconds": 39.670912742614746,
+  "steps": 894,
+  "clips": [
+    {
+      "clip": "02_continuous_single_axis/clip_001",
+      "clip_index": 0,
+      "clip_s": 19.2,
+      "completed": false,
+      "fail_reason": "shaft>=60deg",
+      "tracked_s": 0.66,
+      "rotation_sim_deg": 70.39134218988279,
+      "rotation_ref_deg": 49.65209432235354,
+      "mean_pos_err_cm": 1.329563603256688
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_002",
+      "clip_index": 1,
+      "clip_s": 13.16,
+      "completed": false,
+      "fail_reason": "pen_position>5cm",
+      "tracked_s": 1.32,
+      "rotation_sim_deg": 41.61603525437504,
+      "rotation_ref_deg": 44.90997252878915,
+      "mean_pos_err_cm": 1.8255502888650605
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_003",
+      "clip_index": 2,
+      "clip_s": 19.38,
+      "completed": false,
+      "fail_reason": "shaft>=60deg",
+      "tracked_s": 1.92,
+      "rotation_sim_deg": 62.01467524837409,
+      "rotation_ref_deg": 69.8732313602023,
+      "mean_pos_err_cm": 0.9104882677396139
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_004",
+      "clip_index": 3,
+      "clip_s": 16.92,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 16.9,
+      "rotation_sim_deg": 610.912391367397,
+      "rotation_ref_deg": 633.8239057683679,
+      "mean_pos_err_cm": 0.8885792726595726
+    }
+  ]
+}
