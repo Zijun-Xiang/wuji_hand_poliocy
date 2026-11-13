@@ -70,6 +70,13 @@ def main():
         topics = safe(log, "topics", lambda: [getattr(t, "path", getattr(t, "name", repr(t))) for t in hand.topics()])
         params = safe(log, "params", lambda: [getattr(p, "path", getattr(p, "name", repr(p))) for p in hand.params()])
         resources = safe(log, "resources", lambda: [getattr(r, "path", repr(r)) for r in hand.resources()])
+        for path in ("node_online", "status", "health_status", "master_version_detail", "slave_version",
+                     "board_temperature", "input_voltage", "handedness"):
+            safe(log, f"get({path!r})", lambda p=path: hand.get(p))
+        for f in FINGERS:
+            for leaf in ("tactile_type", "tactile_state", "echo", "node_info", "hw_version", "error_status"):
+                safe(log, f"get('{f}.tactile.{leaf}')", lambda p=f"{f}.tactile.{leaf}": hand.get(p))
+            safe(log, f"get('{f}.S1.node_info')", lambda p=f"{f}.S1.node_info": hand.get(p))
         online = safe(log, "fingertip_online", lambda: list(hand.fingertip_online()))
         for f in FINGERS:
             safe(log, f"fingertip_{f}_status.get", lambda f=f: getattr(hand, f"fingertip_{f}_status")().get())
