@@ -63,6 +63,8 @@ def main() -> int:
     ap.add_argument("--no-hardware", action="store_true", help="dry run with Wuji's stub hand")
     ap.add_argument("--hand-sn", default=None)
     ap.add_argument("--log", default=None, help="save commanded/actual joints to this .npz")
+    ap.add_argument("--auto-start", type=float, default=None, metavar="SEC",
+                    help="start after a countdown instead of waiting for Enter (dry runs; the operator keeps Ctrl+C)")
     args = ap.parse_args()
     motion = Path(args.motion).expanduser().resolve()
     side = motion.with_suffix(".groups.json")
@@ -125,8 +127,14 @@ def main() -> int:
             ease(ctrl, cur, q[0])
             err = np.rad2deg(np.abs(np.asarray(hand.read_joint_actual_position()).reshape(20) - q[0]).max())
             print(f"  eased to frame 0 (max joint error {err:.2f} deg)")
-            print("\n  >>> Hand is at the loop's start pose. CLEAR THE AREA. Press Enter to play, Ctrl+C to open and stop.")
-            input()
+            if args.auto_start is None:
+                print("\n  >>> Hand is at the loop's start pose. CLEAR THE AREA. Press Enter to play, Ctrl+C to open and stop.")
+                input()
+            else:
+                print(f"\n  >>> Hand is at the loop's start pose. CLEAR THE AREA. Starting in {args.auto_start:.0f} s (Ctrl+C to open and stop).")
+                for s_left in range(int(args.auto_start), 0, -1):
+                    print(f"      {s_left}", flush=True)
+                    time.sleep(1.0)
             t0 = time.perf_counter()
             total = len(q) * args.laps
             hold = int(round(args.hold_s / dt))
