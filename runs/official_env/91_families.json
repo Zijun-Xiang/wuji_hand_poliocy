@@ -1,0 +1,127 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/91_loop_families.json",
+  "checkpoint": null,
+  "policy_map": [
+    "01_single_axis=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/01_single_axis/model.pt",
+    "02_continuous_single_axis=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/02_continuous_single_axis/model.pt",
+    "03_continuous_multi_axis=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/03_continuous_multi_axis/model.pt",
+    "04_stable_grasp_rotation=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/04_stable_grasp_rotation/model.pt",
+    "05_multi_axis_two_rotations=src/wuji_mjlab/tasks/pen_spin/data/checkpoints/05_multi_axis_two_rotations/model.pt"
+  ],
+  "zero_policy": false,
+  "device": "cpu",
+  "seconds": 348.92869782447815,
+  "steps": 4953,
+  "clips": [
+    {
+      "clip": "91_loop_families/clip_001",
+      "clip_index": 0,
+      "clip_s": 49.26,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 49.24,
+      "rotation_sim_deg": 4658.005855595913,
+      "rotation_ref_deg": 5169.089349526184,
+      "mean_pos_err_cm": 0.7882930901261678
+    },
+    {
+      "clip": "91_loop_families/clip_002",
+      "clip_index": 1,
+      "clip_s": 76.74,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 76.72,
+      "rotation_sim_deg": 7262.081374328387,
+      "rotation_ref_deg": 8617.612738142056,
+      "mean_pos_err_cm": 0.7903501810942999
+    },
+    {
+      "clip": "91_loop_families/clip_003",
+      "clip_index": 2,
+      "clip_s": 55.14,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 55.120000000000005,
+      "rotation_sim_deg": 4565.075503862014,
+      "rotation_ref_deg": 5457.702763169495,
+      "mean_pos_err_cm": 0.6701108160143494
+    },
+    {
+      "clip": "91_loop_families/clip_004",
+      "clip_index": 3,
+      "clip_s": 54.06,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 54.04,
+      "rotation_sim_deg": 4702.372141651675,
+      "rotation_ref_deg": 5141.935577310962,
+      "mean_pos_err_cm": 0.7799083616537663
+    },
+    {
+      "clip": "91_loop_families/clip_005",
+      "clip_index": 4,
+      "clip_s": 32.1,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 32.08,
+      "rotation_sim_deg": 1888.542059923243,
+      "rotation_ref_deg": 2018.981406352265,
+      "mean_pos_err_cm": 0.8561860890757116
+    },
+    {
+      "clip": "91_loop_families/clip_006",
+      "clip_index": 5,
+      "clip_s": 59.52,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 59.5,
+      "rotation_sim_deg": 4616.126414096197,
+      "rotation_ref_deg": 4962.834684743968,
+      "mean_pos_err_cm": 0.7733934546719078
+    },
+    {
+      "clip": "91_loop_families/clip_007",
+      "clip_index": 6,
+      "clip_s": 96.0,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 95.98,
+      "rotation_sim_deg": 6271.262441248588,
+      "rotation_ref_deg": 6772.277908493181,
+      "mean_pos_err_cm": 0.952691827175095
+    },
+    {
+      "clip": "91_loop_families/clip_008",
+      "clip_index": 7,
+      "clip_s": 98.10000000000001,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 98.08,
+      "rotation_sim_deg": 6097.905464566008,
+      "rotation_ref_deg": 6691.698287307091,
+      "mean_pos_err_cm": 1.094300050719916
+    },
+    {
+      "clip": "91_loop_families/clip_009",
+      "clip_index": 8,
+      "clip_s": 62.82,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 62.800000000000004,
+      "rotation_sim_deg": 3668.483019213016,
+      "rotation_ref_deg": 3553.816710596575,
+      "mean_pos_err_cm": 1.5232389899575787
+    },
+    {
+      "clip": "91_loop_families/clip_010",
+      "clip_index": 9,
+      "clip_s": 39.18,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 39.160000000000004,
+      "rotation_sim_deg": 1714.0306173463905,
+      "rotation_ref_deg": 1772.9657515433028,
+      "mean_pos_err_cm": 1.0578681548355304
+    }
+  ]
+}

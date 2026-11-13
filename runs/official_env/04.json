@@ -1,0 +1,119 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/04_stable_grasp_rotation.json",
+  "checkpoint": "src/wuji_mjlab/tasks/pen_spin/data/checkpoints/04_stable_grasp_rotation/model.pt",
+  "device": "cpu",
+  "seconds": 33.97221922874451,
+  "steps": 542,
+  "clips": [
+    {
+      "clip": "04_stable_grasp_rotation/clip_001",
+      "clip_index": 0,
+      "clip_s": 9.88,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 9.86,
+      "rotation_sim_deg": 241.2905845826607,
+      "rotation_ref_deg": 264.221961173738,
+      "mean_pos_err_cm": 0.8483525947431522
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_002",
+      "clip_index": 1,
+      "clip_s": 8.8,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 8.78,
+      "rotation_sim_deg": 231.60515777352919,
+      "rotation_ref_deg": 261.48054180694834,
+      "mean_pos_err_cm": 0.5210493583070933
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_003",
+      "clip_index": 2,
+      "clip_s": 9.3,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 9.28,
+      "rotation_sim_deg": 229.7126762790587,
+      "rotation_ref_deg": 262.93692938329184,
+      "mean_pos_err_cm": 0.8619339815501509
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_004",
+      "clip_index": 3,
+      "clip_s": 9.120000000000001,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 9.1,
+      "rotation_sim_deg": 246.7205030105508,
+      "rotation_ref_deg": 253.5825208620958,
+      "mean_pos_err_cm": 0.7000380295973557
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_005",
+      "clip_index": 4,
+      "clip_s": 8.64,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 8.620000000000001,
+      "rotation_sim_deg": 241.35571726658594,
+      "rotation_ref_deg": 274.182480681881,
+      "mean_pos_err_cm": 0.5235364431571518
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_006",
+      "clip_index": 5,
+      "clip_s": 9.0,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 8.98,
+      "rotation_sim_deg": 232.09654890317657,
+      "rotation_ref_deg": 260.91953738928015,
+      "mean_pos_err_cm": 0.4815051709623273
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_007",
+      "clip_index": 6,
+      "clip_s": 9.1,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 9.08,
+      "rotation_sim_deg": 217.63631443020756,
+      "rotation_ref_deg": 241.97865783964778,
+      "mean_pos_err_cm": 0.5106898656500594
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_008",
+      "clip_index": 7,
+      "clip_s": 7.640000000000001,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 7.62,
+      "rotation_sim_deg": 222.49238768478986,
+      "rotation_ref_deg": 246.0484397169782,
+      "mean_pos_err_cm": 0.7310610743645295
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_009",
+      "clip_index": 8,
+      "clip_s": 8.14,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 8.120000000000001,
+      "rotation_sim_deg": 229.6637994453581,
+      "rotation_ref_deg": 250.526530302892,
+      "mean_pos_err_cm": 0.5084687853094392
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_010",
+      "clip_index": 9,
+      "clip_s": 7.48,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 7.46,
+      "rotation_sim_deg": 232.30951420149756,
+      "rotation_ref_deg": 264.9953571538369,
+      "mean_pos_err_cm": 0.6035485791776519
+    }
+  ]
+}

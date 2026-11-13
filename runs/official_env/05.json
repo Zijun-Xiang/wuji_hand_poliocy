@@ -1,0 +1,86 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/05_multi_axis_two_rotations.json",
+  "checkpoint": "src/wuji_mjlab/tasks/pen_spin/data/checkpoints/05_multi_axis_two_rotations/model.pt",
+  "device": "cpu",
+  "seconds": 50.633702993392944,
+  "steps": 920,
+  "clips": [
+    {
+      "clip": "05_multi_axis_two_rotations/clip_001",
+      "clip_index": 0,
+      "clip_s": 9.92,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 9.9,
+      "rotation_sim_deg": 458.0137983434859,
+      "rotation_ref_deg": 526.0946651220718,
+      "mean_pos_err_cm": 0.5861152783788816
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_002",
+      "clip_index": 1,
+      "clip_s": 13.780000000000001,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 13.76,
+      "rotation_sim_deg": 548.6474579878337,
+      "rotation_ref_deg": 540.5987630698907,
+      "mean_pos_err_cm": 1.060169865918714
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_003",
+      "clip_index": 2,
+      "clip_s": 15.4,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 15.38,
+      "rotation_sim_deg": 460.7946688829216,
+      "rotation_ref_deg": 499.9066270139757,
+      "mean_pos_err_cm": 0.6151081526698
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_004",
+      "clip_index": 3,
+      "clip_s": 14.780000000000001,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 14.76,
+      "rotation_sim_deg": 452.0295417625576,
+      "rotation_ref_deg": 497.86352618792813,
+      "mean_pos_err_cm": 0.7009710399762079
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_005",
+      "clip_index": 4,
+      "clip_s": 17.3,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 17.28,
+      "rotation_sim_deg": 460.25486537243717,
+      "rotation_ref_deg": 509.7926428186522,
+      "mean_pos_err_cm": 0.902988734068694
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_006",
+      "clip_index": 5,
+      "clip_s": 15.22,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 15.200000000000001,
+      "rotation_sim_deg": 546.0311130451253,
+      "rotation_ref_deg": 542.5623604939993,
+      "mean_pos_err_cm": 0.6567739812951339
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_007",
+      "clip_index": 6,
+      "clip_s": 17.44,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 17.42,
+      "rotation_sim_deg": 531.0063907580114,
+      "rotation_ref_deg": 584.2435625832454,
+      "mean_pos_err_cm": 0.6542212927519385
+    }
+  ]
+}

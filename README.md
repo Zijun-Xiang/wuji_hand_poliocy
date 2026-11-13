@@ -51,6 +51,8 @@ whole thing is distilled into a policy.
 
 ## Results on the 40 released clips (CPU only, ~1.5 h of validation)
 
+**Explainer video:** [`docs/penspin_graph_method_explainer.mp4`](docs/penspin_graph_method_explainer.mp4) (3 min, silent) walks through every step with the real numbers below.
+
 <p align="center"><img src="runs/full3/figures/loop_0.gif" width="420" alt="Best stitched loop replayed in MuJoCo with Wuji's tracking policy; the green ghost is the stitched reference pen"></p>
 
 | stage | result |
@@ -62,15 +64,27 @@ whole thing is distilled into a policy.
 | loops | 151 closed walks; 16 of the top 30 complete a full lap end to end in sim |
 | best loop | 16.4 s lap, 9 jumps, 3 demos stitched, 1,709° of pen-shaft rotation per lap (≈104°/s; 103°/s sustained over the 84.7 s run) |
 
-**Compared with Wuji's original pipeline** (same scene, same tracking policy; rotation = pen-shaft rotation; see [`docs/SUMMARY.md`](docs/SUMMARY.md)):
+**Checked in Wuji's official environment** (wuji-mjlab `v2026.10.22`, mjlab + MuJoCo Warp,
+play configuration, released `model.pt` checkpoints; failure = Wuji's own training
+thresholds, pen position > 5 cm or shaft ≥ 60° from the reference, evaluated every
+step; `scripts/official_env/`, results in `runs/official_env/`):
 
-| | Wuji's official policy | same policy + stitched graph (ours) |
+| | Wuji's official policy on its own clips | same policies + stitched loop (ours) |
 |---|---|---|
-| longest continuous spinning | 18.0 s (longest clip the policy completes; it fails the longer ones here) | **84.7 s** (best loop, 5.2 laps) |
-| shaft rotation in one run | 1,476° | **8,709° (24 turns)** |
-| from 20 random states, 30 s: mean rotation | 555° (policy + nearest frame, no graph; the official pipeline cannot start from a random state) | **1,385°** (seek + circle the best loop) |
-| ... still spinning after 20 s | 2 / 20 | **8 / 20** |
-| ... pen drops | 10% | 15% |
+| clips / runs completed | 40 / 40 | 20 laps = 328 s, never dropped (test stopped there) |
+| longest continuous spinning | 23.8 s (longest clip) | **≥ 328 s** (13.8×) |
+| pen-shaft rotation in one run | 1,475° (best clip) | **31,239° (87 turns, 21×)** |
+| pen error during the run | — | 0.8 cm mean, 2.4 cm worst (limit 5 cm); shaft 26.6° worst (limit 60°) |
+| other loops | — | the best loop of each of the 10 loop families runs 3 laps without a drop (`91_families.json`) |
+| one policy for the whole loop | — | drops the pen within 5.2 s → per-frame policy switching (group of the source frame) is required |
+
+The same comparison in our own standalone MuJoCo scene (`scripts/compare_baselines.py`,
+`runs/full3/comparison_*.json`) gives 18.0 s / 1,476° for Wuji's policy (it completes
+30 of the 40 clips there) against 84.7 s / 8,709° for the loop before the official-env
+check existed; that scene is harsher than Wuji's environment for both methods, and the
+official numbers above are the ones to quote. From 20 random hand states (30 s each,
+our scene): mean rotation 555° for policy + nearest frame without the graph vs
+**1,385°** with seek-and-circle; still spinning after 20 s: 2 / 20 vs **8 / 20**.
 
 Baseline sanity check: the released ONNX policy tracks the *original* clips with
 ~1 cm pen error in our standalone MuJoCo scene, while open-loop PD replay drops
@@ -120,7 +134,13 @@ src/penspin_graph/
   viz/         figures
   cli.py       penspin-graph command line
 tests/         pytest suite (synthetic + real data)
+scripts/official_env/  run Wuji's official environment on CPU (setup.sh, eval_official.py,
+               export_loop_official.py: loops -> official clip groups)
+runs/official_env/     official-environment results (40 clips, loop, ablations)
+deploy/        real-hand deployment through Wuji's official pen-policy runtime, with
+               per-frame policy switching; deploy/clips/ = the best loop in clip schema
 docs/method.md the method in detail, open questions, roadmap
+docs/penspin_graph_method_explainer.mp4  3-minute animated explainer
 ```
 
 ## Install
@@ -162,6 +182,29 @@ penspin-graph --run runs/mine eval --n-starts 20 --horizon 1500 --restrict-scc -
 python scripts/compare_baselines.py runs/mine            # original vs graph comparison
 MUJOCO_GL=egl penspin-graph --run runs/mine render --loop 0 --format gif   # Linux headless; omit MUJOCO_GL on Windows
 ```
+
+### Check a loop in Wuji's official environment (CPU is enough)
+
+```bash
+bash scripts/official_env/setup.sh ../wuji-mjlab        # clone v2026.10.22, assets, CPU venv (mjlab + MuJoCo Warp)
+source ../wuji-mjlab/.venv-cpu/bin/activate
+python scripts/official_env/export_loop_official.py runs/full3 ../wuji-mjlab --loops 0 --laps 6 20   # -> clip group 90_graph_loop
+cd ../wuji-mjlab && D=src/wuji_mjlab/tasks/pen_spin/data
+python ../penspin-graph/scripts/official_env/eval_official.py --recipe $D/recipe/02_continuous_single_axis.json \
+    --checkpoint $D/checkpoints/02_continuous_single_axis/model.pt --out 02.json          # Wuji's clips, Wuji's policy
+python ../penspin-graph/scripts/official_env/eval_official.py --recipe $D/recipe/90_graph_loop.json --episode-length-s 400 \
+    --policy-map 02_continuous_single_axis=$D/checkpoints/02_continuous_single_axis/model.pt \
+                 03_continuous_multi_axis=$D/checkpoints/03_continuous_multi_axis/model.pt \
+    --frame-groups ../penspin-graph/loop_clips.json --out 90_loop.json                   # our loop, per-frame policies
+```
+
+### Run the loop on the real hand
+
+See [`deploy/README.md`](deploy/README.md): `deploy/pen_policy_graph.py` wraps Wuji's
+official `pen-policy` runtime and switches the released policy per frame;
+`deploy/clips/` holds the best loop in the official clip schema. The camera-based pen
+pose is required: with the reference pen pose fed to the policy instead, Wuji's own clips
+fail within 2–7 s in Wuji's simulator (`runs/official_env/03_objref.json`).
 
 ### Train PPO on the stitched references (GPU, wuji-mjlab)
 

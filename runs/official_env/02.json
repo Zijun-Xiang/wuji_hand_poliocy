@@ -1,0 +1,53 @@
+{
+  "recipe": "src/wuji_mjlab/tasks/pen_spin/data/recipe/02_continuous_single_axis.json",
+  "checkpoint": "src/wuji_mjlab/tasks/pen_spin/data/checkpoints/02_continuous_single_axis/model.pt",
+  "device": "cpu",
+  "seconds": 47.90205430984497,
+  "steps": 1017,
+  "clips": [
+    {
+      "clip": "02_continuous_single_axis/clip_001",
+      "clip_index": 0,
+      "clip_s": 19.2,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 19.18,
+      "rotation_sim_deg": 831.5454786167044,
+      "rotation_ref_deg": 944.6234677227942,
+      "mean_pos_err_cm": 0.7753901237988994
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_002",
+      "clip_index": 1,
+      "clip_s": 13.16,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 13.14,
+      "rotation_sim_deg": 596.1109889453859,
+      "rotation_ref_deg": 624.3526736916081,
+      "mean_pos_err_cm": 0.8556982879406423
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_003",
+      "clip_index": 2,
+      "clip_s": 19.38,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 19.36,
+      "rotation_sim_deg": 830.7430679930113,
+      "rotation_ref_deg": 946.6777700590806,
+      "mean_pos_err_cm": 0.6586022613462338
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_004",
+      "clip_index": 3,
+      "clip_s": 16.92,
+      "completed": true,
+      "fail_reason": "",
+      "tracked_s": 16.9,
+      "rotation_sim_deg": 561.1069251472309,
+      "rotation_ref_deg": 633.8239057683679,
+      "mean_pos_err_cm": 0.8683922445985692
+    }
+  ]
+}
