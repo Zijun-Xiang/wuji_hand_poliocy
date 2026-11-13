@@ -17,3 +17,4 @@ runs/*/graph/*.npz
 .deps/
 deploy/last_playback.npz
 deploy/windows/cameras.txt
+hardware/parts/*.step
