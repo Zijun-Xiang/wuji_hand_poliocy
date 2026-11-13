@@ -83,11 +83,13 @@ camera. What is needed, in order of effort:
    36h11 ID 0 (50.4 mm black edge) and the ten faces of the two 18 × 18 × 36 mm pen end blocks
    (Wuji's sticker fallback). Better: 3D-print `pen_heads.3mf` + a shaft from Wuji's asset bundle.
    Pen length 250 mm, 178 mm exposed shaft, core diameter 14.9 mm.
-2. **Camera.** `pen_observer_realsense.py` runs Wuji's unmodified observer on a RealSense colour
-   stream with the device's factory intrinsics (`deploy/windows/pen_observer_realsense.bat`;
-   installs opencv-contrib-python, pyzmq, pyrealsense2 into `.venv-deploy`). A RealSense lens is
-   about 2× wider than Wuji's, so place it 30–40 cm from the pen and start at 1280 × 720 @ 30 fps.
-   Not yet run on hardware.
+2. **Camera.** The camera on this PC is an **Intel RealSense D435i** (`deploy/windows/list_cameras.bat`
+   writes the device list). `pen_observer_realsense.py` runs Wuji's unmodified observer on it with the
+   device's factory intrinsics (`deploy/windows/pen_observer_realsense.bat`; installs
+   opencv-contrib-python, pyzmq, pyrealsense2 into `.venv-deploy`). Two modes: `--stream color`
+   (1920 × 1080 @ 30, rolling shutter) and `--stream infrared` (left IR imager, global shutter,
+   848 × 480 or 1280 × 720 @ 90 fps like Wuji's rig, projector off). Its lens is 2–3× wider than
+   Wuji's, so place it 25–35 cm from the pen. Not yet run on hardware.
 3. Then the official two-terminal flow above: observer first, `pen_policy_graph.py` second.
 
 ## No camera yet? Play the loop's joint motion on the hand
