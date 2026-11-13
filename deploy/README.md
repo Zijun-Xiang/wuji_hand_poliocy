@@ -64,6 +64,26 @@ groups **02** and **03** from Wuji's `v2026.10.22` asset bundle.
    to start. `r` opens the hand, **Ctrl+C** aborts. Keep a hand on the power switch:
    Ctrl+C is not an emergency stop.
 
+## No camera yet? Play the loop's joint motion on the hand
+
+`play_reference.py` sends the loop's reference joint angles to the hand at 50 Hz
+through Wuji's own deploy-side driver, gains and easing (`runtime/hand.py`,
+`lib/hand2_adapter.py`, `wuji_sdk`), without a camera and without the policy. It shows
+the stitched motion on the real hand, including the blends between demos, and reports
+the joint tracking error. It does **not** spin a pen (see the table above). It runs on
+Windows too: only the terminal handling of Wuji's runtime is replaced.
+
+```bat
+deploy\windows\play_loop.bat                    :: first run: creates .venv-deploy, installs wuji_sdk 2026.11.9,
+                                                 :: clones wuji-mjlab into .deps\ if no sibling checkout exists;
+                                                 :: then plays one lap at half speed
+deploy\windows\play_loop.bat --no-hardware      :: dry run with Wuji's stub hand
+deploy\windows\play_loop.bat --speed 1.0 --laps 3
+```
+
+Linux: `python deploy/play_reference.py --wuji-root <wuji-mjlab> --motion deploy/clips/graph_loop_1lap.npz --speed 0.5`.
+The hand eases to frame 0 and waits; **clear the area**, press Enter; Ctrl+C eases it open.
+
 ## What is still untested
 
 Only the simulator runs above exist. The loop has **not** been run on a physical hand
