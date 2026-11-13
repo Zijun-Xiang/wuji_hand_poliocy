@@ -58,7 +58,87 @@ def _first(d: dict, *keys, default=None):
     return default
 
 
+class PointArrayDecoder:
+    """Wuji Hand 2 fingertip format v1, encoding "point_array" (what the hand reports, see
+    deploy/fingertip_formats.json): per taxel fx, fy, fz (i16 x 0.001, normalized units) at a 3D
+    position on the curved pad, then an aggregate block: fx, fy, fz (i16 x 0.01 N) and
+    temperature (i16 x 0.1 degC). The payload is a byte array of point_count*point_stride +
+    aggregate_stride bytes."""
+
+    kind = "point_array"
+
+    def __init__(self, fmt: dict):
+        self.fmt = fmt
+        self.raw_format = json.dumps(fmt)
+        self.n = int(fmt["point_count"])
+        self.stride = int(fmt.get("point_stride", 6))
+        self.agg_stride = int(fmt.get("aggregate_stride", 0))
+        self.endian = "<" if str(fmt.get("endian", "little")).startswith("l") else ">"
+        self.point_fields = fmt.get("point_fields", [])
+        self.agg_fields = fmt.get("aggregate_fields", [])
+        self.positions = np.array(fmt.get("positions", []), dtype=float)       # metres, sensor frame
+        self.unit = fmt.get("unit", "")
+        self.bytes_needed = self.n * self.stride + self.agg_stride
+        self.mode = "fields"
+        self.fields = [dict(name="points", count=self.n * len(self.point_fields)), dict(name="force", count=3)]
+        # unwrapped 2-D layout of the curved pad: angle around the finger axis (deg) x length (mm)
+        if len(self.positions):
+            x, y, z = self.positions.T
+            self.u = np.degrees(np.arctan2(x, z))
+            self.v = y * 1000.0
+        else:
+            self.u = np.arange(self.n, dtype=float); self.v = np.zeros(self.n)
+
+    def _field(self, buf: bytes, base: int, f: dict) -> float:
+        dt = self.endian + _DTYPES.get(str(f.get("type", "i16")).lower(), "<i2").lstrip("<>")
+        off = base + int(f.get("offset", 0))
+        v = np.frombuffer(buf, dtype=dt, count=1, offset=off)[0]
+        return float(v) * float(f.get("scale", 1.0))
+
+    def decode(self, data) -> dict[str, np.ndarray]:
+        raw = np.asarray(data)
+        out: dict[str, np.ndarray] = {}
+        if raw.size >= self.bytes_needed and raw.min() >= 0 and raw.max() <= 255:
+            buf = bytes(raw.astype(np.uint8).tolist())
+            names = [f["name"] for f in self.point_fields]
+            pts = np.zeros((self.n, len(names)))
+            for i in range(self.n):
+                for j, f in enumerate(self.point_fields):
+                    pts[i, j] = self._field(buf, i * self.stride, f)
+            out["points"] = pts                                   # (n, 3): fx fy fz per taxel
+            base = self.n * self.stride
+            agg = {f["name"]: self._field(buf, base, f) for f in self.agg_fields}
+            out["force"] = np.array([agg.get("fx", 0.0), agg.get("fy", 0.0), agg.get("fz", 0.0)])
+            out["temperature"] = np.array(agg.get("temperature", float("nan")))
+        elif raw.size >= self.n * 3:                              # values already decoded by the SDK
+            pts = raw[: self.n * 3].astype(float).reshape(self.n, 3) * 0.001
+            out["points"] = pts
+            rest = raw[self.n * 3:].astype(float)
+            out["force"] = (rest[:3] * 0.01) if rest.size >= 3 else np.zeros(3)
+            out["temperature"] = np.array(rest[3] * 0.1 if rest.size >= 4 else float("nan"))
+        else:
+            out["raw"] = raw.astype(np.float64)
+        return out
+
+    def taxel_field(self):
+        return dict(name="points", count=self.n, rows=None, cols=None, points=None, unit=self.unit, scale=1.0)
+
+    def force_field(self):
+        return dict(name="force", count=3, unit="N")
+
+
+def make_decoder(format_str: str | None, model: str = ""):
+    try:
+        fmt = json.loads(format_str) if format_str else {}
+    except Exception:
+        fmt = {}
+    if isinstance(fmt, dict) and fmt.get("encoding") == "point_array" and "point_count" in fmt:
+        return PointArrayDecoder(fmt)
+    return FormatDecoder(format_str, model)
+
+
 class FormatDecoder:
+    kind = "generic"
     """Turns a FingertipSensorData.data payload (list[int]) into named numpy arrays.
 
     Understood format JSON shapes (any of):
@@ -188,7 +268,7 @@ class FingerStream:
         self.model = ""
         self.state = ""
         self.rate_hz = 0.0
-        self.decoder = FormatDecoder(None)
+        self.decoder = make_decoder(None)
         self.latest: dict[str, np.ndarray] | None = None
         self.latest_t = 0.0
         self.count = 0
@@ -254,12 +334,12 @@ class RealHand:
             try:
                 info = getattr(self.hand, f"fingertip_{f}_info")().get()
                 s.rate_hz = float(info.rate_hz)
-                s.decoder = FormatDecoder(info.format, model=str(info.model))
+                s.decoder = make_decoder(info.format, model=str(info.model))
                 print(f"[{f:6s}] model={info.model} type={info.device_type} rate={info.rate_hz} Hz digest={info.digest}")
                 print(f"[{f:6s}] format={info.format}")
             except Exception as e:
                 print(f"[{f:6s}] info read failed: {e}")
-                s.decoder = FormatDecoder(None)
+                s.decoder = make_decoder(None)
             sub = getattr(self.hand, f"fingertip_{f}_data")().subscribe()
             if rate_hz > 0:
                 try:
@@ -297,20 +377,20 @@ class RealHand:
 
 
 class FakeHand:
-    """Synthetic fingertips for --no-hardware: a 6x4 (thumb 8x5) i16 taxel grid + 3-axis force."""
+    """Synthetic fingertips for --no-hardware, using the real sensor descriptors the hand reported
+    (deploy/fingertip_formats.json): a moving contact patch on the curved pad + its total force."""
 
     def __init__(self, rate_hz: int):
         self.streams = {f: FingerStream(f) for f in FINGERS}
         self.rate = rate_hz or 100
         self.t0 = time.time()
         self.next_t = self.t0
+        fmts = json.load(open(HERE / "fingertip_formats.json"))
         for f in FINGERS:
-            rows, cols = (8, 5) if f == "thumb" else (6, 4)
-            fmt = json.dumps({"fields": [{"name": "taxel", "dtype": "i16", "count": rows * cols, "rows": rows, "cols": cols, "unit": "raw"},
-                                         {"name": "force", "dtype": "f32", "count": 3, "unit": "N"}]})
             s = self.streams[f]
-            s.online, s.model, s.state, s.rate_hz = True, "Thumb" if f == "thumb" else "Standard", "Ready", float(self.rate)
-            s.decoder = FormatDecoder(fmt, model=s.model)
+            fmt = {k: v for k, v in fmts[f].items() if not k.startswith("_")}
+            s.online, s.model, s.state, s.rate_hz = True, ("Thumb" if f == "thumb" else "Standard"), "Ready", float(self.rate)
+            s.decoder = make_decoder(json.dumps(fmt), model=s.model)
 
     def poll(self, keep_log: bool) -> int:
         n = 0
@@ -318,15 +398,20 @@ class FakeHand:
         while self.next_t <= now:
             t = self.next_t - self.t0
             for i, f in enumerate(FINGERS):
-                s = self.streams[f]
-                rows, cols = s.decoder.fields[0]["rows"], s.decoder.fields[0]["cols"]
-                yy, xx = np.mgrid[0:rows, 0:cols]
-                cx, cy = cols / 2 + 1.2 * math.sin(0.7 * t + i), rows / 2 + 1.5 * math.cos(0.5 * t + i)
-                amp = 2000 * max(0.0, math.sin(0.9 * t + 1.3 * i))
-                tax = amp * np.exp(-((xx - cx) ** 2 + (yy - cy) ** 2) / 2.5) + np.random.randn(rows, cols) * 15
-                force = np.array([0.3 * math.sin(t + i), 0.2 * math.cos(1.3 * t + i), amp / 1000.0], dtype=np.float32)
-                payload = struct.pack(f"<{rows * cols}h", *np.clip(tax, -32768, 32767).astype(np.int16).ravel()) + force.tobytes()
-                s.push(list(payload), self.next_t, keep_log)
+                s = self.streams[f]; d = s.decoder
+                P = d.positions
+                # contact centre wanders over the pad; pressure = gaussian of distance
+                cx = 0.004 * math.sin(0.7 * t + i)
+                cy = P[:, 1].mean() + 0.005 * math.cos(0.5 * t + i)
+                amp = max(0.0, math.sin(0.9 * t + 1.3 * i))                 # 0..1
+                r2 = (P[:, 0] - cx) ** 2 + (P[:, 1] - cy) ** 2
+                fz = amp * np.exp(-r2 / (2 * 0.004 ** 2))                    # normalized 0..1
+                fx = 0.25 * fz * math.sin(1.7 * t + i); fy = 0.25 * fz * math.cos(1.1 * t + i)
+                pts = np.stack([fx, fy, fz], 1) + np.random.randn(d.n, 3) * 0.004
+                buf = struct.pack(f"<{d.n * 3}h", *np.clip(pts / 0.001, -32768, 32767).astype(np.int16).ravel())
+                F = pts.sum(0) * 0.08                                         # fake newtons
+                buf += struct.pack("<4h", *np.clip(F / 0.01, -32768, 32767).astype(np.int16), int(31.5 / 0.1))
+                s.push(list(buf), self.next_t, keep_log)
                 n += 1
             self.next_t += 1.0 / self.rate
         return n
@@ -369,7 +454,7 @@ def run_gui(hand, args):
         (lines[f],) = ax_ts.plot([], [], color=c, lw=1.6, label=f)
     ax_ts.legend(loc="upper left", ncol=5, fontsize=8, frameon=False, labelcolor="#e8e8ec")
     ax_ts.set_xlabel("time (s)", color="#9aa0ad", fontsize=9)
-    ax_ts.set_ylabel("total contact (sum |taxel|)", color="#9aa0ad", fontsize=9)
+    ax_ts.set_ylabel("total fingertip force |F| (N)", color="#9aa0ad", fontsize=9)
     ax_ts.set_xlim(-10, 0)
 
     artists: dict[str, dict] = {}
@@ -400,10 +485,29 @@ def run_gui(hand, args):
         ax.set_title(f, color="#e8e8ec", fontsize=11, pad=6)
         d = {"kind": "none"}
         if not s.online:
-            ax.text(0.5, 0.5, "offline", ha="center", va="center", color="#777", transform=ax.transAxes)
+            ax.text(0.5, 0.5, "offline\n(module not answering\non the finger bus)", ha="center", va="center", color="#777", fontsize=8, transform=ax.transAxes)
             ax.set_xticks([]); ax.set_yticks([])
             return d
         dec = s.decoder
+        if getattr(dec, "kind", "") == "point_array":
+            # unwrapped pad: horizontal = angle around the finger axis, vertical = distance along it
+            n = dec.n
+            du = (np.ptp(dec.u) / max(1, len(np.unique(np.round(dec.u, 0))) - 1)) if n > 1 else 10
+            sc = ax.scatter(dec.u, dec.v, c=np.zeros(n), s=170, cmap="inferno", vmin=0, vmax=1,
+                            edgecolors="#444", linewidths=0.5, zorder=2)
+            qv = ax.quiver(dec.u, dec.v, np.zeros(n), np.zeros(n), color="#66d9e8", angles="xy",
+                           scale_units="xy", scale=1.0, width=0.012, zorder=3)
+            ax.set_xlim(dec.u.min() - du, dec.u.max() + du)
+            ax.set_ylim(dec.v.min() - 2.0, dec.v.max() + 2.0)
+            ax.set_xlabel("around the pad (deg)", color="#9aa0ad", fontsize=7.5)
+            if f == "thumb":
+                ax.set_ylabel("along the finger (mm)", color="#9aa0ad", fontsize=7.5)
+            ax.text(0.5, -0.16, f"{n} taxels, 3-axis each", transform=ax.transAxes, ha="center", color="#777", fontsize=7)
+            d = {"kind": "point_array", "sc": sc, "qv": qv, "key": "points", "force_key": "force", "force_unit": "N",
+                 "du": du}
+            d["force_txt"] = ax.text(0.02, 0.02, "", transform=ax.transAxes, color="#ffd166", fontsize=7, va="bottom", family="monospace")
+            d["info"] = ax.text(0.02, 0.98, "", transform=ax.transAxes, color="#9aa0ad", fontsize=7.5, va="top", family="monospace")
+            return d
         tf = dec.taxel_field()
         if tf is None:
             n = len(s.latest["raw"]) if s.latest and "raw" in s.latest else 1
@@ -451,6 +555,21 @@ def run_gui(hand, args):
                 continue
             key = a.get("key")
             vals = s.latest.get(key) if key else None
+            if a["kind"] == "point_array" and vals is not None:
+                pts = vals                                     # (n, 3) normalized fx fy fz
+                mag = np.linalg.norm(pts, axis=1)
+                F = s.latest.get("force", np.zeros(3))
+                hist[f].append(float(np.linalg.norm(F)))
+                vmax[f] = max(vmax[f] * 0.995, float(np.percentile(mag, 99)) * 1.05, 0.02)
+                floor = 0.15 * max(vmax.values())
+                vmax[f] = max(vmax[f], floor)
+                a["sc"].set_array(mag); a["sc"].set_clim(0, vmax[f])
+                k = a["du"] / max(vmax[f], 1e-6)              # arrow length: vmax -> one taxel spacing
+                a["qv"].set_UVC(pts[:, 0] * k, pts[:, 1] * k * 0.6)
+                T = float(s.latest.get("temperature", np.nan))
+                a["force_txt"].set_text(f"F {F[0]:+.2f} {F[1]:+.2f} {F[2]:+.2f} N  |F| {np.linalg.norm(F):.2f}  {T:.0f}\u00b0C")
+                a["info"].set_text(f"{s.model} {s.state}\n{s.hz():.0f} Hz  n={s.count}  peak={vmax[f]:.3f}")
+                continue
             total = float(np.abs(vals).sum()) if vals is not None else 0.0
             hist[f].append(total)
             if vals is not None:

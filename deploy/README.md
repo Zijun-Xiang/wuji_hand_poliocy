@@ -127,3 +127,27 @@ The hand's servo thread reached 369 Hz against a 1000 Hz target on this laptop.
 Only the simulator runs above exist. The loop has **not** been run on a physical hand
 yet, and the camera-based pen pose on a real rig has latency and dropouts that the
 official policies were trained for but the stitched blends were not. Start with one lap.
+
+
+## Fingertip tactile sensors (2026-11-13)
+
+`deploy/tactile_viewer.py` (Windows: `deploy\windows\tactile_viewer.bat`) shows the five
+fingertip modules live: per finger an unwrapped map of the pad (thumb 40 taxels, other
+fingers 34, each a 3-axis force), the module's total force vector in newtons and its
+temperature, plus a 10 s history of |F| per finger. Keys: `c` zero-calibrate (no contact!),
+`r` reset the colour scale, `q` quit; the raw frames are logged to `runs/tactile/*.npz`.
+`--no-hardware` runs it on synthetic data with the real sensor geometry
+(`deploy/fingertip_formats.json`, read from the hand with `tactile_probe.py`).
+
+Payload format reported by the hand (firmware v2.5.1): `encoding: point_array`, per point
+`fx, fy, fz` as little-endian i16 x 0.001 (normalized), 6-byte stride, then an aggregate block
+`fx, fy, fz` (i16 x 0.01 N) and `temperature` (i16 x 0.1 degC); taxel positions are given in
+metres in the sensor frame (`base_xyz` / `base_rpy` relative to the fingertip link).
+
+**Status on this hand (WH2KA01260824017, hw 0.2.0, fw v2.5.1):** `node_online` = 0xF7BDEF, i.e.
+the four joint nodes of every finger are online but the tactile slot (node 5) of all five
+fingers is absent; `tactile_online_mask = 0`, the per-finger `tactile.*` parameters answer
+`InternalError`, and the `fingertip/*/data` streams deliver no frames. The master does know
+the sensor descriptors (it answers `fingertip_<finger>_info`), so the firmware supports the
+modules — they are just not present/answering on the bus. `deploy/windows/tactile_probe.bat`
+re-runs this diagnosis and writes `runs/tactile/probe_<time>.txt`.
