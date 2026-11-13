@@ -64,6 +64,32 @@ groups **02** and **03** from Wuji's `v2026.10.22` asset bundle.
    to start. `r` opens the hand, **Ctrl+C** aborts. Keep a hand on the power switch:
    Ctrl+C is not an emergency stop.
 
+## Pen placement at the start
+
+The loop starts at frame 0 of `02_continuous_single_axis/clip_003`. `start_pose_02_clip_003.png`
+shows it from three sides; `start_pose_02_clip_003.json` has the numbers. In the palm frame the
+pen's centre is at (1.2, 7.4, −9.5) cm and its shaft points along (0.84, 0.09, −0.53): the pen lies
+across the fingertips and is pinched between the thumb, index and middle fingertips (each 2.0–2.6 cm
+from the pen axis); the ring and little fingers are 5.7 and 7.8 cm away. The official start gate
+accepts a pen within 5 cm and 60° of this pose, so "lying across the three fingertips, roughly
+level" is enough; the MuJoCo mirror shows the translucent reference pen for fine adjustment.
+
+## Camera without the Hikrobot rig: RealSense + printed markers
+
+The policy's pen pose comes only from Wuji's markers, so a plain pen cannot be tracked by any
+camera. What is needed, in order of effort:
+
+1. **Markers.** `markers/wuji_pen_spin_markers_A4.pdf` prints at 100 % scale: the wrist AprilTag
+   36h11 ID 0 (50.4 mm black edge) and the ten faces of the two 18 × 18 × 36 mm pen end blocks
+   (Wuji's sticker fallback). Better: 3D-print `pen_heads.3mf` + a shaft from Wuji's asset bundle.
+   Pen length 250 mm, 178 mm exposed shaft, core diameter 14.9 mm.
+2. **Camera.** `pen_observer_realsense.py` runs Wuji's unmodified observer on a RealSense colour
+   stream with the device's factory intrinsics (`deploy/windows/pen_observer_realsense.bat`;
+   installs opencv-contrib-python, pyzmq, pyrealsense2 into `.venv-deploy`). A RealSense lens is
+   about 2× wider than Wuji's, so place it 30–40 cm from the pen and start at 1280 × 720 @ 30 fps.
+   Not yet run on hardware.
+3. Then the official two-terminal flow above: observer first, `pen_policy_graph.py` second.
+
 ## No camera yet? Play the loop's joint motion on the hand
 
 `play_reference.py` sends the loop's reference joint angles to the hand at 50 Hz
