@@ -1,0 +1,3 @@
+# tactile logs are large; the discovery_*.json files are small and worth keeping
+*.npz
+viewer_headless.png
