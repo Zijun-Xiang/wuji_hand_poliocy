@@ -110,6 +110,16 @@ deploy\windows\play_loop.bat --speed 1.0 --laps 3
 Linux: `python deploy/play_reference.py --wuji-root <wuji-mjlab> --motion deploy/clips/graph_loop_1lap.npz --speed 0.5`.
 The hand eases to frame 0 and waits; **clear the area**, press Enter; Ctrl+C eases it open.
 
+## First real-hand run (2026-11-13)
+
+`runs/real_hand/playback_1lap_half_speed_2026-11-13.{npz,json,png}`: one lap of the best loop's
+joint motion on the physical Wuji Hand 2 at half speed through Wuji's driver, no pen, no policy.
+846 ticks at 40 ms, no missed ticks. Joint tracking error: mean 1.9°, median 1.5°, 95th
+percentile 4.7°, worst 12.0° (little-finger joint 3, at the fastest curl just before the
+03 → 02 blend). The error at the two demo-to-demo blends (5–8°) is no worse than inside the
+recorded demos; most of it is a 2-tick (40 ms) lag plus the thumb's ≈ 1° position quantisation.
+The hand's servo thread reached 369 Hz against a 1000 Hz target on this laptop.
+
 ## What is still untested
 
 Only the simulator runs above exist. The loop has **not** been run on a physical hand

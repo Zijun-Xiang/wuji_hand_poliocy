@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-13",
+  "clip": "deploy/clips/graph_loop_1lap.npz",
+  "speed": 0.5,
+  "hand_sn": "WH2KA01260824017",
+  "gains": {
+    "kp": 3.0,
+    "kd": 0.05,
+    "effort_limit_A": 1.5
+  },
+  "ticks": 846,
+  "duration_s": 33.800025299999106,
+  "joint_error_deg": {
+    "mean": 1.8640817354073294,
+    "median": 1.5236051755128668,
+    "p95": 4.67664034310466,
+    "max": 11.973555549011426
+  },
+  "worst_joints_mean_deg": {
+    "f5_j3": 3.7328970840456055,
+    "f5_j1": 2.5636254020737166,
+    "f1_j4": 2.3582580279000287,
+    "f4_j1": 2.3264409799552124,
+    "f3_j1": 2.268696992977639
+  },
+  "best_fit_lag_ticks": 2,
+  "servo_rate_achieved_hz": 369,
+  "note": "camera-less joint playback through Wuji's deploy driver; no pen; the policy was not in the loop"
+}
