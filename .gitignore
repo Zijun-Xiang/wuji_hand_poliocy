@@ -16,3 +16,4 @@ runs/*/graph/*.npz
 .venv-deploy/
 .deps/
 deploy/last_playback.npz
+deploy/windows/cameras.txt
