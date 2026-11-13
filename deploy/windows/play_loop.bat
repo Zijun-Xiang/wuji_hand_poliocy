@@ -13,6 +13,14 @@ set "WUJI=%REPO%\.deps\wuji-mjlab"
 if exist "%VENV%\Scripts\python.exe" goto :have_venv
 echo [setup] creating %VENV%
 set "PY="
+for %%V in (313 312 311 310 314) do (
+  if not defined PY if exist "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe" set "PY=%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
+)
+if not defined PY if exist "%LOCALAPPDATA%\Programs\Python\Launcher\py.exe" (
+  for %%V in (3.13 3.12 3.11 3.10 3.14) do (
+    if not defined PY ( "%LOCALAPPDATA%\Programs\Python\Launcher\py.exe" -%%V -c "import sys" >nul 2>&1 && set "PY="%LOCALAPPDATA%\Programs\Python\Launcher\py.exe" -%%V" )
+  )
+)
 for %%V in (3.13 3.12 3.11 3.10 3.14) do (
   if not defined PY ( py -%%V -c "import sys" >nul 2>&1 && set "PY=py -%%V" )
 )
@@ -21,7 +29,8 @@ if not defined PY (
   echo [setup] no Python 3.10-3.14 found. Install Python from python.org, then run this again.
   exit /b 1
 )
-%PY% -m venv "%VENV%" || exit /b 1
+echo [setup] using %PY%
+"%PY:"=%" -m venv "%VENV%" 2>nul || %PY% -m venv "%VENV%" || exit /b 1
 "%VENV%\Scripts\python.exe" -m pip install --upgrade pip >nul
 echo [setup] installing numpy, pyyaml, wuji_sdk==2026.11.9 (Wuji Hand 2 driver, Windows wheel)
 "%VENV%\Scripts\python.exe" -m pip install numpy pyyaml "wuji_sdk==2026.11.9" || exit /b 1
