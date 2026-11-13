@@ -1,0 +1,35 @@
+{
+  "column_base": {
+    "min_distance_mm": 18.4,
+    "pen_points_inside": 0
+  },
+  "column_top": {
+    "min_distance_mm": 18.1,
+    "pen_points_inside": 0
+  },
+  "bracket": {
+    "min_distance_mm": 3.9,
+    "pen_points_inside": 0
+  },
+  "d435i": {
+    "min_distance_mm": 0.4,
+    "pen_points_inside": 18
+  },
+  "wuji_jig": {
+    "min_distance_mm": 30.0,
+    "pen_points_inside": 0
+  },
+  "pen_sweep_bounds_mm": {
+    "min": [
+      101.0,
+      -56.0,
+      -8.0
+    ],
+    "max": [
+      408.0,
+      268.0,
+      248.0
+    ]
+  },
+  "camera_lowest_point_z_mm": 185.9
+}

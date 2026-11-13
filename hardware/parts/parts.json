@@ -22,19 +22,19 @@
       "name": "camera_column_base",
       "size_mm": [
         100.0,
-        100.0,
-        200.0
+        87.5,
+        150.0
       ],
-      "volume_cm3": 452.5
+      "volume_cm3": 335.0
     },
     {
       "name": "camera_column_top",
       "size_mm": [
-        90.5,
-        135.0,
-        220.0
+        120.0,
+        160.0,
+        160.0
       ],
-      "volume_cm3": 574.2
+      "volume_cm3": 540.8
     }
   ],
   "jig_transform": [
@@ -82,12 +82,12 @@
     ]
   ],
   "column_centre": [
-    162.5,
-    187.5
+    62.5,
+    212.5
   ],
   "plate_centre": [
     130.0,
     100.0,
-    360.0
+    250.0
   ]
 }

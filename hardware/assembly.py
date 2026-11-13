@@ -66,16 +66,53 @@ def build():
     # wrist tag on top of the jig (50.4 mm, approximate position)
     tag = trimesh.creation.box((50.4, 50.4, 1.0)); top_z = (T_JIG @ np.array([150, 45, 35, 1]))[2]
     scene.add_geometry(colored(tag, (0.1, 0.1, 0.1, 1)), node_name="wrist_tag", geom_name="wrist_tag", transform=translate(flange_w[0] - 45, 100, top_z + 0.5))
-    # D435i (90 x 25 x 25) hanging UNDER the plate on the user's bracket (18 mm), tilted 15 deg
+    # D435i (90 x 25 x 25) hanging UNDER the 12 mm plate on the user's bracket (18 mm), tilted 10 deg
     # towards the fingertips about the bracket hinge; the lenses face down-forward
     bracket = trimesh.creation.box((50, 40, 18))
     scene.add_geometry(colored(bracket, (0.1, 0.1, 0.1, 1)), node_name="bracket", geom_name="bracket",
-                       transform=translate(PLATE[0], PLATE[1], PLATE[2] - 8 - 9))
+                       transform=translate(PLATE[0], PLATE[1], PLATE[2] - 12 - 9))
     cam = trimesh.creation.box((90, 25, 25))     # long axis along X (the hand's length): the 87 deg IR field of view runs along it
     Tc = trimesh.transformations.rotation_matrix(math.radians(-10), [0, 1, 0])   # tilt: front face towards +X/down
-    Tc = translate(PLATE[0] + 8, PLATE[1], PLATE[2] - 8 - 18 - 14) @ Tc
-    scene.add_geometry(colored(cam, (0.85, 0.85, 0.85, 1)), node_name="d435i", geom_name="d435i", transform=Tc)
+    Tc = translate(PLATE[0] + 8, PLATE[1], PLATE[2] - 12 - 18 - 14) @ Tc
+    scene.add_geometry(colored(cam, (0.45, 0.47, 0.52, 1)), node_name="d435i", geom_name="d435i", transform=Tc)
     return scene, Tc
+
+
+def add_pen_sweep(scene, n_frames=24):
+    """Add the pen at n_frames evenly spaced poses of the deployed loop (graph_loop_1lap.npz),
+    in the rig frame, as translucent copies (node names pen_sweep_*), and return all swept
+    pen vertices (N x 3, mm) for clearance checks."""
+    from scipy.spatial.transform import Rotation as Rot
+    clip = np.load(str(HERE.parents[0] / "deploy" / "clips" / "graph_loop_1lap.npz"))
+    op = clip["object_pose_w"]
+    def T_of(p):
+        q = p[3:7]; T = np.eye(4); T[:3, :3] = Rot.from_quat(np.r_[q[1:], q[0]]).as_matrix(); T[:3, 3] = p[:3] * 1000.0; return T
+    Th = scene.graph.get("pen")[0]
+    pen = trimesh.load("/tmp/pen_scene_mm.stl", force="mesh")
+    T0inv = np.linalg.inv(T_of(op[0]))
+    allv = []
+    for i, t in enumerate(np.linspace(0, len(op) - 1, n_frames).astype(int)):
+        M = Th @ T_of(op[t]) @ T0inv
+        scene.add_geometry(colored(pen, (0.95, 0.7, 0.1, 0.35)), node_name=f"pen_sweep_{i:02d}", geom_name=f"pen_sweep_{i:02d}", transform=M)
+    for t in range(len(op)):
+        allv.append(trimesh.transform_points(pen.vertices, Th @ T_of(op[t]) @ T0inv))
+    return np.concatenate(allv)
+
+
+def clearance_report(scene, sweep):
+    """Minimum distance from the swept pen to each rig part (negative = collision)."""
+    from scipy.spatial import cKDTree
+    tree = cKDTree(sweep[::3])
+    out = {}
+    for node in ["column_base", "column_top", "bracket", "d435i", "wuji_jig"]:
+        T, g = scene.graph.get(node); m = scene.geometry[g].copy(); m.apply_transform(T)
+        pts = m.sample(20000) if m.area > 0 else m.vertices
+        d, _ = tree.query(pts)
+        # inside test: points of the part that lie inside the pen's swept convex region are approximated
+        # by checking pen points inside the part's bounding box
+        inside = m.contains(sweep[::3]) if m.is_watertight else np.zeros(len(sweep[::3]), bool)
+        out[node] = dict(min_distance_mm=round(float(d.min()), 1), pen_points_inside=int(inside.sum()))
+    return out
 
 
 def render(scene, name, eye, target, w=1600, h=1000, yfov=0.75, up=None):
@@ -103,11 +140,11 @@ def render(scene, name, eye, target, w=1600, h=1000, yfov=0.75, up=None):
 def main():
     scene, Tc = build()
     scene.export(str(PARTS / "assembly.glb"))
-    render(scene, "assembly_iso", eye=(-230, -420, 400), target=(175, 110, 150), yfov=0.70)
-    render(scene, "assembly_front", eye=(620, 110, 230), target=(140, 110, 150), yfov=0.70)
-    render(scene, "assembly_side", eye=(175, -560, 250), target=(175, 110, 160), yfov=0.70)
+    render(scene, "assembly_iso", eye=(-230, -420, 360), target=(175, 110, 120), yfov=0.70)
+    render(scene, "assembly_front", eye=(620, 110, 200), target=(140, 110, 120), yfov=0.70)
+    render(scene, "assembly_side", eye=(175, -560, 200), target=(175, 110, 120), yfov=0.70)
     render(scene, "assembly_top", eye=(175, 125, 800), target=(175, 125, 0), yfov=0.55)
-    render(scene, "camera_plate_closeup", eye=(40, -60, 470), target=(135, 100, 340), yfov=0.5)
+    render(scene, "camera_plate_closeup", eye=(40, -70, 360), target=(135, 100, 230), yfov=0.5)
     # single parts
     for name, eye, tgt in [("breadboard_tile", (-120, -180, 160), (87, 62, 0)), ("splice_plate", (-40, -60, 50), (25, 25, 0)),
                            ("camera_column_base", (-220, -260, 220), (0, 0, 90)), ("camera_column_top", (-240, -300, 420), (-10, -50, 250)),
@@ -121,9 +158,19 @@ def main():
     cam_pos = Tc[:3, 3] + 14 * look   # lenses on the down-facing front face
     # D435i IR imagers: 87 deg along the body's long axis (here world X, the hand's length), 58 deg across
     render(scene, "camera_view_d435i_ir", eye=cam_pos, target=cam_pos + 300 * look, w=1280, h=720, yfov=math.radians(58), up=(0, -1, 0))
-    print("renders:", sorted(p.name for p in REND.glob("*.png")))
     print("camera at", np.round(cam_pos, 1), "fingertip region ~ (300, 100, 110); distance",
           round(float(np.linalg.norm(cam_pos - np.array([300, 100, 110]))), 0), "mm")
+    # pen sweep over the deployed loop: separate renders + clearance numbers + a GLB with the sweep layer
+    sweep = add_pen_sweep(scene)
+    render(scene, "pen_sweep_side", eye=(175, -560, 200), target=(175, 110, 120), yfov=0.70)
+    render(scene, "pen_sweep_iso", eye=(-230, -420, 360), target=(175, 110, 120), yfov=0.70)
+    scene.export(str(PARTS / "assembly_with_pen_sweep.glb"))
+    rep = clearance_report(scene, sweep)
+    rep["pen_sweep_bounds_mm"] = dict(min=np.round(sweep.min(0), 0).tolist(), max=np.round(sweep.max(0), 0).tolist())
+    rep["camera_lowest_point_z_mm"] = round(float(scene.geometry[scene.graph.get("d435i")[1]].copy().apply_transform(scene.graph.get("d435i")[0]).bounds[0, 2]), 1)
+    (REND / "clearance.json").write_text(json.dumps(rep, indent=2))
+    print(json.dumps(rep, indent=1))
+    print("renders:", sorted(p.name for p in REND.glob("*.png")))
 
 
 if __name__ == "__main__":

@@ -40,13 +40,14 @@ M3_NUT_T = 2.4 + 0.6
 
 # camera mount geometry
 FOOT, FOOT_T = 100.0, 10.0
+FOOT_Y_POS = 37.5           # the foot is shortened on +Y so it stays on the 250 mm board (column at Y = 212.5)
 COL = 45.0
-COL_BASE_H = 200.0          # foot bottom -> top of the base column
+COL_BASE_H = 150.0          # foot bottom -> top of the base column
 LAP = 60.0                  # overlap of the two column halves
-COL_TOP_Z = 360.0           # top of the column; the camera hangs ~35 mm below the plate top
+COL_TOP_Z = 250.0           # top of the column = top of the camera plate (user: 25 cm)
 ARM_T = 25.0
 ARM_W = 45.0
-PLATE_X, PLATE_Y, PLATE_T = 60.0, 50.0, 8.0
+PLATE_X, PLATE_Y, PLATE_T = 60.0, 50.0, 12.0
 # D435i bracket pattern, centre-to-centre (the user measured outer-edge distances with 3 mm holes)
 BRK_LONG = 40.0 - 3.0       # 37 mm
 BRK_SHORT = 17.0 - 3.0      # 14 mm
@@ -56,9 +57,12 @@ BRK_SLOT = 1.5              # +-1.5 mm radial slack in every hole
 # layout on the breadboard (hole indices)
 JIG_BOLTS_X = (37.5, 87.5)          # 50 mm apart along the hand
 JIG_BOLTS_Y = (62.5, 137.5)         # 75 mm apart across
-COL_CENTRE = (162.5, 187.5)         # column axis; foot bolts at +-25 around it
+# Column axis. The pen sweeps X 102-408, Y -55..265, Z up to 248 during the loop
+# (deploy/clips/graph_loop_1lap.npz replayed through assembly.py), so the column stands
+# behind the hand on the +Y side where the pen never reaches: X 40-85 (pen X >= 102).
+COL_CENTRE = (62.5, 212.5)          # foot bolts at +-25 around it: (37.5/87.5, 187.5/237.5)
 PLATE_CENTRE_Y = 100.0              # camera plate centred over the hand (hand centre Y = 100)
-PLATE_OFFSET_X = -32.5              # plate centre at X = 130: the IR imager then sees the wrist tag (X~60) and the pen (X 230-380)
+PLATE_OFFSET_X = +67.5              # plate centre at X = 130, reached by an L-shaped arm (-Y then +X)
 
 
 def grid_x(n):
@@ -98,23 +102,26 @@ def lap_bolt_z():
 
 
 def camera_column_base() -> cq.Workplane:
-    foot = (cq.Workplane("XY").box(FOOT, FOOT, FOOT_T, centered=(True, True, False))
-            .edges("|Z").fillet(8.0))
-    foot = foot.faces(">Z").workplane().pushPoints([(-25, -25), (25, -25), (-25, 25), (25, 25)]).hole(M6_CLEAR)
+    # foot: 100 wide in X, from -50 to +FOOT_Y_POS in Y (the +Y side is at the board edge)
+    foot = (cq.Workplane("XY").box(FOOT, FOOT / 2 + FOOT_Y_POS, FOOT_T, centered=(True, False, False))
+            .translate((0, -FOOT / 2, 0)).edges("|Z").fillet(8.0))
+    foot = foot.faces(">Z").workplane(origin=(0, 0, FOOT_T)).pushPoints([(-25, -25), (25, -25), (-25, 25), (25, 25)]).hole(M6_CLEAR)
     col = cq.Workplane("XY").box(COL, COL, COL_BASE_H - FOOT_T, centered=(True, True, False)).translate((0, 0, FOOT_T))
     # lap joint: keep only the +X half of the column over the top LAP mm
     cut = cq.Workplane("XY").box(COL / 2 + 0.2, COL + 2, LAP + 1, centered=(False, True, False)).translate((-COL / 2 - 0.2, 0, COL_BASE_H - LAP))
     col = col.cut(cut)
     body = foot.union(col)
     # gussets between foot and column
-    for sx in (-1, 1):
-        g = (cq.Workplane("YZ").polyline([(COL / 2, FOOT_T), (COL / 2 + 25, FOOT_T), (COL / 2, FOOT_T + 40)]).close()
+    for sy in (-1, 1):       # gussets along +-Y (YZ workplane: local x = world Y)
+        # the foot is short on +Y (FOOT_Y_POS), so that gusset is shorter
+        reach_g = 25.0 if sy < 0 else min(25.0, FOOT_Y_POS - COL / 2 - 2)
+        g = (cq.Workplane("YZ").polyline([(COL / 2, FOOT_T), (COL / 2 + reach_g, FOOT_T), (COL / 2, FOOT_T + 40)]).close()
              .extrude(8.0, both=True))
-        body = body.union(g.mirror("XZ") if sx < 0 else g)
-    for sy in (-1, 1):
+        body = body.union(g.mirror("XZ") if sy < 0 else g)
+    for sx in (-1, 1):       # gussets along +-X (XZ workplane: local x = world X)
         g = (cq.Workplane("XZ").polyline([(COL / 2, FOOT_T), (COL / 2 + 25, FOOT_T), (COL / 2, FOOT_T + 40)]).close()
              .extrude(8.0, both=True))
-        body = body.union(g.mirror("YZ") if sy < 0 else g)
+        body = body.union(g.mirror("YZ") if sx < 0 else g)
     # two horizontal M6 holes through the lap (along X)
     for z in lap_bolt_z():
         body = body.cut(cq.Workplane("YZ").circle(M6_CLEAR / 2).extrude(COL + 2, both=True).translate((0, 0, z)))
@@ -130,24 +137,32 @@ def camera_column_top() -> cq.Workplane:
     col = col.cut(cut)
     for z in lap_bolt_z():
         col = col.cut(cq.Workplane("YZ").circle(M6_CLEAR / 2).extrude(COL + 2, both=True).translate((0, 0, z)))
-    # arm towards -Y (over the hand), top flush with the column top
-    reach = COL_CENTRE[1] - PLATE_CENTRE_Y            # 87.5 mm from column axis to plate centre
-    arm_len = reach - PLATE_Y / 2 + COL / 2 + 10      # overlap the plate by 10 mm
-    arm = (cq.Workplane("XY").box(ARM_W, arm_len, ARM_T, centered=(True, False, False))
-           .translate((0, -(arm_len) + COL / 2, COL_TOP_Z - ARM_T)))
-    # diagonal brace under the arm
+    # L-shaped arm, top flush with the column top: first towards -Y (from the column to the
+    # plate's Y), then along +X to the plate centre over the hand.
+    reach = COL_CENTRE[1] - PLATE_CENTRE_Y            # 112.5 mm from column axis to plate centre (Y)
+    arm1 = (cq.Workplane("XY").box(ARM_W, reach + COL / 2 + ARM_W / 2, ARM_T, centered=(True, False, False))
+            .translate((0, -reach - ARM_W / 2, COL_TOP_Z - ARM_T)))
+    # arm2 stops at the plate's -X edge (+5 mm overlap) so the whole underside of the plate is
+    # free for the camera bracket, which is bolted UNDER the plate
+    arm2_len = PLATE_OFFSET_X - PLATE_X / 2 + ARM_W / 2 + 5
+    arm2 = (cq.Workplane("XY").box(arm2_len, ARM_W, ARM_T, centered=(False, True, False))
+            .translate((-ARM_W / 2, -reach, COL_TOP_Z - ARM_T)))
+    # diagonal brace under arm1 at the column (the pen never comes here: pen X >= 102, column X 40-85)
+    brace_d = min(70.0, COL_TOP_Z - ARM_T - 160.0)    # keep the brace tip above the jig top (Z 149)
     brace = (cq.Workplane("YZ").polyline([(-COL / 2, COL_TOP_Z - ARM_T), (-COL / 2 - 60, COL_TOP_Z - ARM_T),
-                                          (-COL / 2, COL_TOP_Z - ARM_T - 70)]).close().extrude(ARM_W / 2, both=True))
-    body = col.union(arm).union(brace)
-    # camera plate at the arm end, centred at (PLATE_OFFSET_X, -reach), top at COL_TOP_Z
+                                          (-COL / 2, COL_TOP_Z - ARM_T - brace_d)]).close().extrude(ARM_W / 2, both=True))
+    # gusset in the arm's inner corner (plan view), same thickness as the arm
+    corner = (cq.Workplane("XY").polyline([(ARM_W / 2, -reach + ARM_W / 2), (ARM_W / 2 + 30, -reach + ARM_W / 2),
+                                           (ARM_W / 2, -reach + ARM_W / 2 + 30)]).close().extrude(ARM_T)
+              .translate((0, 0, COL_TOP_Z - ARM_T)))
+    body = col.union(arm1).union(arm2).union(brace).union(corner)
+    # camera plate cantilevered from arm2, centred at (PLATE_OFFSET_X, -reach), top at COL_TOP_Z.
+    # 12 mm thick and rib-less: its underside must stay flat for the bracket.
     plate = (cq.Workplane("XY").box(PLATE_X, PLATE_Y, PLATE_T, centered=(True, True, False))
              .edges("|Z").fillet(5.0).translate((PLATE_OFFSET_X, -reach, COL_TOP_Z - PLATE_T)))
     body = body.union(plate)
-    # rib under the plate, from the arm to the plate's far end (the plate cantilevers towards -X)
-    rib = (cq.Workplane("XY").box(PLATE_X + abs(PLATE_OFFSET_X) - 5, 10.0, 22.0, centered=(False, True, False))
-           .translate((PLATE_OFFSET_X - PLATE_X / 2 + 3, -reach, COL_TOP_Z - PLATE_T - 22.0)))
-    body = body.union(rib)
-    # bracket pattern: trapezoid, long pair towards the column (+Y), short pair outboard (-Y)
+    # bracket pattern: trapezoid with both pairs along X (the camera body's direction), long pair
+    # on the +Y row (towards the column), short pair on the -Y row
     cx, cy = PLATE_OFFSET_X, -reach
     holes = [(cx - BRK_LONG / 2, cy + BRK_H / 2), (cx + BRK_LONG / 2, cy + BRK_H / 2),
              (cx - BRK_SHORT / 2, cy - BRK_H / 2), (cx + BRK_SHORT / 2, cy - BRK_H / 2)]
@@ -156,8 +171,10 @@ def camera_column_top() -> cq.Workplane:
         slot = (cq.Workplane("XY").slot2D(2 * BRK_SLOT + M3_CLEAR, M3_CLEAR, angle=ang)
                 .extrude(PLATE_T + 2).translate((hx, hy, COL_TOP_Z - PLATE_T - 1)))
         body = body.cut(slot)
+        # nut pocket on the TOP face: the M3 screw comes up from under the bracket, the nut sits
+        # in the pocket (hex, cannot turn), so the bracket is clamped flat against the plate's underside
         nut = (cq.Workplane("XY").slot2D(2 * BRK_SLOT + M3_NUT_AF, M3_NUT_AF, angle=ang)
-               .extrude(M3_NUT_T).translate((hx, hy, COL_TOP_Z - PLATE_T)))
+               .extrude(M3_NUT_T + 1).translate((hx, hy, COL_TOP_Z - M3_NUT_T)))
         body = body.cut(nut)
     # spare 1/4"-20 tripod clearance in the plate centre
     body = body.cut(cq.Workplane("XY").circle(6.6 / 2).extrude(PLATE_T + 2).translate((cx, cy, COL_TOP_Z - PLATE_T - 1)))

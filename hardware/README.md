@@ -16,8 +16,8 @@ surface is Z = 0 and its hole grid is X = 12.5 + 25 i, Y = 12.5 + 25 j.
 |---|---|---|---|---|
 | `breadboard_tile` | 4 | 175 × 125 × 12 | flat, nut pockets down (on the bed) | 100 g |
 | `splice_plate` | 5 | 50 × 50 × 8 | flat, nut pockets down | 8 g |
-| `camera_column_base` | 1 | 100 × 100 × 200 | standing on its foot | 200 g |
-| `camera_column_top` | 1 | 90 × 135 × 220 | lying on its side (flat face down) | 250 g |
+| `camera_column_base` | 1 | 100 × 88 × 150 | standing on its foot | 150 g |
+| `camera_column_top` | 1 | 120 × 160 × 160 | upside down: the arm's and plate's flat top face on the bed, column pointing up | 240 g |
 | `wuji_hand2_base` | 1 | 150 × 90 × 82 | **print Wuji's own `base.3mf`** (`third_party/wuji_hand2_base.3mf`, Bambu profile inside); the STL here is the same part re-exported in mm | ~180 g |
 
 The breadboard is 4 identical tiles → **350 × 250 mm**, 14 × 10 M6 holes on a 25 mm pitch
@@ -32,29 +32,46 @@ Apache-2.0) keeps its four M6 feet: they land exactly on grid holes
 so the hand points 10° downwards, palm up, wrist flange centre about 115 mm above the board,
 fingertips near X = 300. The wrist AprilTag goes on the jig's top face (as in Wuji's photo).
 
-## Camera column
+## Camera column (25 cm, as requested)
 
 A 45 × 45 mm column in two pieces with a 60 mm bolted lap joint (two M6 × 55 through both
-halves), foot bolted at (137.5 / 187.5, 162.5 / 212.5), beside the hand on the +Y side.
-The arm reaches over the hand; the camera plate (60 × 50 × 8, top at **Z = 360**) is
-centred at X = 130, Y = 100, i.e. above the palm, 35 mm towards the wrist from the column.
-The arm's underside is 50 mm above a vertically held pen, so nothing can be hit.
+halves), foot bolted at (37.5 / 87.5, 187.5 / 237.5): behind the hand on the +Y side, next
+to the jig, where the pen never comes (the pen stays at X ≥ 102 mm during the whole loop,
+the column occupies X 40–85). The foot is shortened on +Y so it stays on the 250 mm board.
+An L-shaped arm (first towards −Y, then along +X) carries the camera plate
+(60 × 50 × 12, top at **Z = 250**) centred at X = 130, Y = 100, above the palm.
+
+**What 25 cm means for the camera** (`renders/pen_sweep_*.png`, `renders/clearance.json`,
+from replaying `deploy/clips/graph_loop_1lap.npz` through this model):
+
+- the pen's ends reach **Z = 248 mm** during the loop, right over the palm; the camera's
+  lowest point is at **Z = 186 mm**, so the pen passes through the camera's volume on part
+  of every lap. The column, arm and jig are clear (≥ 18 mm).
+- from 19 cm above the board the D435i's 87° field of view covers the palm and the base of
+  the fingers only (`renders/camera_view_d435i_ir.png`): the wrist AprilTag and the
+  fingertips are outside the image.
+
+So this height is fine for camera-less playback (`deploy/play_reference.py`) and for
+filming, but not for closed-loop spinning with the pen observer. For that, set
+`COL_TOP_Z = 330` (or the previous 360) in `rig.py` and reprint only the column top: at
+330 the camera clears the pen by 2.6 cm and sees tag, hand and pen.
 
 The plate carries your D435i bracket's hole pattern: a trapezoid with centre-to-centre
-distances **37 mm** (long pair, towards the column), **14 mm** (short pair, outboard) and
+distances **37 mm** (long pair, on the +Y row), **14 mm** (short pair, on the −Y row) and
 **22.4 mm** between the rows (your 40 / 17 / 25.4 mm outer-edge measurements minus one
-3 mm hole). Each hole is a radial slot ±1.5 mm long for M3 screws (3.4 mm), with an M3 nut
-pocket on the plate's underside, so a 1–2 mm measurement error still fits. A 6.6 mm
-hole in the plate centre takes a 1/4"-20 screw if you ever want a ball head instead.
+3 mm hole). Each hole is a radial slot ±1.5 mm long for M3 screws (3.4 mm), so a 1–2 mm
+measurement error still fits. The M3 nut pockets are on the plate's **top** face: the
+screws come up from under the bracket, the nuts sit in the hex pockets and cannot turn,
+and the bracket is clamped flat against the plate's underside. A 6.6 mm hole in the
+plate centre takes a 1/4"-20 screw if you ever want a ball head instead.
 
 **Mount the bracket under the plate** so the camera hangs below it and looks down without
 the plate in the way; the bracket's hinge sets the tilt. With the camera body along X
-(the hand's length) the D435i's wide 87° infrared field of view runs along the hand:
-tilted about 10° towards the fingertips it sees the wrist tag on the jig, the whole
-hand and the pen; the lenses are then ~250 mm from the fingertips, which is the
-distance Wuji's deploy guide recommends for the 13.5 mm pen tags.
+(the hand's length) the D435i's wide 87° infrared field of view runs along the hand.
 
 ![camera view](renders/camera_view_d435i_ir.png)
+
+![pen sweep](renders/pen_sweep_iso.png)
 
 ## Bolts and nuts (all M6 unless noted)
 
@@ -64,7 +81,7 @@ distance Wuji's deploy guide recommends for the 13.5 mm pen tags.
 | Wuji jig feet (counterbore 6.8 deep in a 30 mm foot) | M6 × 40 | 4 |
 | camera column foot | M6 × 30 | 4 |
 | column lap joint | M6 × 55 + washers | 2 |
-| D435i bracket → plate | M3 × 12 + M3 nuts | 4 |
+| D435i bracket → plate (bracket base + 12 mm plate + nut) | M3 × 20 + M3 nuts | 4 |
 | M6 nuts (DIN 934, 10 mm across flats) | | ~30 |
 
 Nut pockets are 10.4 mm across flats, 5.8 mm deep (M6) and 5.9 / 3.0 mm (M3); if your
@@ -82,7 +99,7 @@ not perfectly flat (175 × 125 is a large footprint).
    in Bambu Studio "Place on face" (快捷键 F) and click the face that should lie on the bed.
    Check the units are mm (the tile must read 175 × 125 × 12).
 3. Set the profile above, slice, send to the printer. Printing time is roughly 4 h per tile,
-   1 h per splice plate, 6–8 h per column piece.
+   1 h per splice plate, 5–7 h per column piece.
 4. For the red jig print `third_party/wuji_hand2_base.3mf` as it is (Wuji's own Bambu
    profile). On a non-Bambu printer import `parts/wuji_hand2_base.stl` instead and print
    it standing on its foot plate with supports enabled (the cross-shaped wrist flange
@@ -95,9 +112,11 @@ not perfectly flat (175 × 125 is a large footprint).
    the five splice plates (nut pockets down), bolt from the top with M6 × 25. Turn over.
 2. Drop nuts into every hole you will use; bolt down Wuji's jig (M6 × 40) at the four holes
    listed above, the wrist-flange side facing +X (towards the long side of the board).
-3. Bolt the column base (M6 × 30) at (137.5 / 187.5, 162.5 / 212.5); slide the column top
-   onto the lap, two M6 × 55 with washers through both.
-4. Fix your D435i bracket under the camera plate (M3 × 12 into the nut pockets), camera
+3. Bolt the column base (M6 × 30) at (37.5 / 87.5, 187.5 / 237.5), the short side of the
+   foot towards the board edge; slide the column top onto the lap, two M6 × 55 with
+   washers through both.
+4. Drop four M3 nuts into the pockets on top of the camera plate, hold the D435i bracket
+   under the plate and drive M3 × 20 screws up through the bracket into the nuts; camera
    body along X, lenses towards the fingertips; tilt about 10° at the hinge.
 5. Mount the hand on the jig flange (Wuji's screws), palm up, cable behind the wrist.
    Stick the wrist AprilTag on the jig top; place the pen as in `deploy/start_pose_02_clip_003.png`.
@@ -111,4 +130,6 @@ python hardware/assembly.py   # renders/*.png, parts/assembly.glb
 ```
 
 Change the layout at the top of `rig.py` (`COL_CENTRE`, `COL_TOP_Z`, `PLATE_OFFSET_X`, the
-bracket pattern `BRK_*`) and rerun.
+bracket pattern `BRK_*`) and rerun. `assembly.py` also replays the deployed loop and writes
+`renders/clearance.json` (minimum pen-to-part distances), so a layout change can be checked
+against the pen's motion before printing.
