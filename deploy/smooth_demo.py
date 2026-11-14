@@ -272,7 +272,9 @@ def main():
         if _STOP:
             print("stopped before start"); hand.close(); return
         print(f"[start] moving in {s} s — keep clear of the hand", flush=True)
-        hand.poll(); time.sleep(1.0)
+        t_c = time.perf_counter()
+        while time.perf_counter() - t_c < 1.0:      # keep draining the streams (no 'lagged' warnings)
+            hand.poll(); time.sleep(0.005)
 
     hand.enable()
     print("[hand] joints enabled")
