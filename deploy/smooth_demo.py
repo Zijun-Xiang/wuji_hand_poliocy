@@ -365,5 +365,28 @@ def main():
     hand.close()
 
 
+class _Tee:
+    def __init__(self, path: Path, stream):
+        self.f = open(path, "a", encoding="utf-8"); self.s = stream
+
+    def write(self, x):
+        self.s.write(x); self.f.write(x); self.f.flush()
+
+    def flush(self):
+        self.s.flush(); self.f.flush()
+
+
 if __name__ == "__main__":
-    main()
+    RUNS.mkdir(parents=True, exist_ok=True)
+    _log = RUNS / f"smooth_demo_console_{datetime.now():%Y-%m-%d_%H%M%S}.txt"
+    sys.stdout = _Tee(_log, sys.stdout); sys.stderr = _Tee(_log, sys.stderr)
+    print(f"[console] logging to {_log}")
+    try:
+        main()
+    except SystemExit as e:
+        print(f"[exit] {e}")
+        raise
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        raise
