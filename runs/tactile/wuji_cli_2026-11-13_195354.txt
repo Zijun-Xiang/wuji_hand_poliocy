@@ -1,0 +1,116 @@
+# wuji-cli check 2026-11-13T19:53:54
+[install] Wuji CLI not found; running the official installer: irm https://get.wuji.tech/cli.ps1 | iex
+[cli] using C:\Users\xiang\AppData\Local\Programs\Wuji\bin\wuji.exe
+
+$ wuji --version
+commit: 1784f43d
+version: 2026.11.9
+
+
+$ wuji devices
+found 0 device(s)
+
+
+$ wuji ping
+ERROR: error: no device found
+
+$ wuji doctor
+ ══════ Environment ══════
+~ Software: version info incomplete
+├─ �?CLI: 2026.11.9 (1784f43d) (up to date)
+└─ ~ SDK: not installed or version undetectable (skipped): wuji_sdk 未安�?
+�?System: supported
+└─ �?OS: Windows build 26200 (supported)
+
+! Network interfaces: 4 interfaces, see interface count
+├─ �?VMware Network Adapter VMnet1 (192.168.217.1/24)
+├─ �?VMware Network Adapter VMnet8 (192.168.229.1/24)
+├─ �?以太�?(192.168.1.50/24)
+├─ �?WLAN (10.203.183.233/16)
+└─ ! Interface count: 4 interfaces �?multiple interfaces may cause routing issues
+
+══════ Generic ══════
+└─ ~ Device discovery: 1 device(s) found, IP checks skipped (no UDP devices)
+   ├─ ~ Duplicate device IP: not attempted: no UDP devices
+   └─ ~ Host subnet: not attempted: no UDP devices
+
+══════ wuji_hand_2: WH2KA01260824017 ══════
+└─ ~ connect & diagnose: not attempted: no diagnostic recipe for device (sn=WH2KA01260824017, device_id=0x02)
+
+
+
+$ wuji upgrade --check
+1/1 device(s) have updates available
+┌──────────────────┬─────────────┬─────────┬────────┬──────────────────�?�?SN               �?Device Type �?Current �?Latest �?Status           �?╞══════════════════╪═════════════╪═════════╪════════╪══════════════════╡
+�?WH2KA01260824017 �?wuji_hand_2 �?2.5.1   �?3.0.0  �?update available �?└──────────────────┴─────────────┴─────────┴────────┴──────────────────�?
+
+
+$ wuji get node_online
+node_online = 16236015
+
+
+$ wuji get firmware_version
+firmware_version = "v2.5.1"
+
+
+$ wuji get hw_version
+hw_version = {"major":0,"minor":2,"patch":0}
+
+
+$ wuji get health_status
+health_status = [1,0,0,0,0]
+
+
+$ wuji get slave_version
+slave_version = [20,0,1,1,3,2,2,0,1,5,2,0,3,3,0,2,1,3,2,2,0,1,5,2,0,3,3,0,3,1,3,2,2,0,1,5,2,0,3,3,0,4,1,3,2,2,0,1,5,2,0,3,3,1,1,1,3,2,2,0,1,5,2,0,3,3,1,2,1,3,2,2,0,1,5,2,0,3,3,1,3,1,0,5,2,0,1,5,2,0,3,3,1,4,1,3,2,2,0,1,5,2,0,3,3,2,1,1,0,5,2,0,1,5,2,0,3,3,2,2,1,0,5,2,0,1,5,2,0,3,3,2,3,0,1,5,2,0,0,0,0,0,3,0,2,4,0,1,5,2,0,0,0,0,0,3,0,3,1,1,3,2,2,0,1,5,2,0,3,3,3,2,1,3,2,2,0,1,5,2,0,3,3,3,3,1,3,2,2,0,1,5,2,0,3,3,3,4,1,3,2,2,0,1,5,2,0,3,3,4,1,0,1,5,2,0,0,5,2,0,3,3,4,2,0,1,5,2,0,0,5,2,0,3,3,4,3,0,1,5,2,0,0,5,2,0,3,3,4,4,0,1,5,2,0,0,5,2,0,3,3]
+
+
+$ wuji get thumb.tactile.tactile_type
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get thumb.tactile.tactile_state
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get index.tactile.tactile_type
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get index.tactile.tactile_state
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get middle.tactile.tactile_type
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get middle.tactile.tactile_state
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get ring.tactile.tactile_type
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get ring.tactile.tactile_state
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get pinky.tactile.tactile_type
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji get pinky.tactile.tactile_state
+ERROR: error: Internal error: Protocol error: Zenoh query error: GET error: get failed: InternalError
+
+$ wuji logs --help
+Manage device logs and diagnostics
+
+Usage: wuji logs [OPTIONS] <COMMAND>
+
+Commands:
+  path    Display the default log directory path
+  list    List available log files in the log directory
+  export  Export logs and diagnostics into a support bundle
+  dump    Collect device flash history and available diagnostic snapshots
+
+Options:
+  -h, --help  Print help
+
+Global Options:
+      --json   Output as pretty-printed JSON
+      --jsonl  Output as JSON Lines (one compact JSON object per frame/record)
+
+# done: C:\Users\xiang\Documents\GitHub\wuji_hand_poliocy\runs\tactile\wuji_cli_2026-11-13_195354.txt

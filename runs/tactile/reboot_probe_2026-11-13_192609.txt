@@ -1,0 +1,23 @@
+# reboot probe 2026-11-13T19:26:10
+connected WH2KA01260824017  fw=v2.5.1  hw=HwVersion(major=0, minor=2, patch=0)
+[before] node_online=0xF7BDEF  joints online=20/20  tactile nodes={'thumb': 0, 'index': 0, 'middle': 0, 'ring': 0, 'pinky': 0}
+[before] fingertip_online=[False, False, False, False, False]
+[before] comm.tactile_online_mask=0 timeouts=[0, 0, 0, 0, 0]
+[before] thumb: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[before] index: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[before] middle: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[before] ring: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[before] pinky: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[before] fingertip data frames in 3 s: {'thumb': 0, 'index': 0, 'middle': 0, 'ring': 0, 'pinky': 0}
+[reboot] sending reboot…
+[reboot] back after 11 s: WH2KA01260824017  fw=v2.5.1
+[after] node_online=0xF7BDEF  joints online=20/20  tactile nodes={'thumb': 0, 'index': 0, 'middle': 0, 'ring': 0, 'pinky': 0}
+[after] fingertip_online=[False, False, False, False, False]
+[after] comm.tactile_online_mask=0 timeouts=[0, 0, 0, 0, 0]
+[after] thumb: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[after] index: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[after] middle: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[after] ring: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[after] pinky: status ERROR WujiException: Internal error: Protocol error: Zenoh query error: GET error: get failed: Intern
+[after] fingertip data frames in 3 s: {'thumb': 0, 'index': 0, 'middle': 0, 'ring': 0, 'pinky': 0}
+# done: C:\Users\xiang\Documents\GitHub\wuji_hand_poliocy\runs\tactile\reboot_probe_2026-11-13_192609.txt

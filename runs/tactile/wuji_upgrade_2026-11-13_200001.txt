@@ -1,0 +1,255 @@
+# wuji upgrade 2026-11-13T20:00:01  using C:\Users\xiang\AppData\Local\Programs\Wuji\bin\wuji.exe
+
+$ wuji get firmware_version
+firmware_version = "v2.5.1"
+[exit code 0]
+$ wuji upgrade --help
+Upgrade device firmware (--check first)
+
+Usage: wuji upgrade [OPTIONS] [COMMAND]
+
+Commands:
+  rollback  Roll back the device to its backup firmware
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+Scope (defaults to the only connected device):
+      --all
+          Every discovered device (latest firmware only)
+
+      --type <TYPE>
+          Every device of one type (matches ping's Device Type, case-insensitive)
+
+      --sn <SN>
+          Connect by serial number (e.g. `WG1JA00XXXXXXXXX`)
+
+      --address <ADDRESS>
+          Connect by IP address and port (e.g. `192.168.1.100:50001`)
+
+      --handedness <HANDEDNESS>
+          Connect by handedness (left / right), for two-handed devices
+
+Actions (any scope):
+      --check
+          Check for firmware updates (read-only; works with any scope)
+
+Actions (require a single-type scope: --type or one device):
+  -l, --list
+          List available firmware versions (read-only)
+
+      --to <VERSION>
+          Install a specific catalog version (e.g. `--to 0.11.0`); omit for the latest
+
+      --file <PATH>
+          Local firmware file: official .zip package (verified) or a binary .bin (unverified �?no
+          manifest/digest/type/version check)
+
+Safety:
+  -y, --yes
+          Skip the confirmation prompt (required with --json / --jsonl)
+          
+          Global: also takes effect after a subcommand token (`wuji upgrade rollback --sn X -y`),
+          which is the only way to skip the rollback confirmation.
+
+      --force
+          Allow downgrading a device that is ahead of the latest catalog version, and re-flashing a
+          device that is already on the target version
+
+Global Options:
+      --json
+          Output as pretty-printed JSON
+
+      --jsonl
+          Output as JSON Lines (one compact JSON object per frame/record)
+
+Examples:
+  wuji upgrade --check                        # see which devices have updates
+  wuji upgrade --all                          # upgrade every device to latest
+  wuji upgrade --sn <SN>                      # upgrade one device to latest
+  wuji upgrade --sn <SN> --to 0.11.0          # install a specific version
+  wuji upgrade --type wuji_glove --to 0.11.0   # install on every glove
+  wuji upgrade --sn <SN> --list               # list versions for one device
+  wuji upgrade --file fw.zip                  # flash a local package
+
+[upgrade] starting: wuji upgrade --sn WH2KA01260824017 --yes   (do not power off the hand)
+
+$ wuji upgrade --sn WH2KA01260824017 --yes
+WH2KA01260824017: Preparing
+WH2KA01260824017: Transferring
+WH2KA01260824017: Writing
+WH2KA01260824017: Waiting for reboot
+WH2KA01260824017: Done
+WH2KA01260824017: Preparing
+WH2KA01260824017: Transferring
+WH2KA01260824017: Writing
+WH2KA01260824017: Waiting for reboot
+WH2KA01260824017: Done
+1 upgraded (1 device(s))
+┌──────────────────┬────────┬────────┬───────┬──────────�?�?SN               �?Status �?Before �?After �?Duration �?╞══════════════════╪════════╪════════╪═══════╪══════════�?�?WH2KA01260824017 �?ok     �?2.5.1  �?3.0.0 �?124s     �?└──────────────────┴────────┴────────┴───────┴──────────�?
+[exit code 0]
+[upgrade] waiting 25 s for the hand to restart
+
+$ wuji devices
+found 1 device(s)
+┌──────────────────┬─────────────┬───────────┬──────────┬─────────────────────┬─────────────────────�?�?SN               �?Device Type �?Transport �?USB Port �?IP                  �?Address             �?╞══════════════════╪═════════════╪═══════════╪══════════╪═════════════════════╪═════════════════════�?�?WH2KA01260824017 �?wuji_hand_2 �?Udp       �?-        �?192.168.1.111:50001 �?192.168.1.111:50001 �?└──────────────────┴─────────────┴───────────┴──────────┴─────────────────────┴─────────────────────�?💡 run `wuji ping` to get device type and firmware version
+[exit code 0]
+
+$ wuji get firmware_version
+firmware_version = "v3.0.0"
+[exit code 0]
+
+$ wuji get node_online
+node_online = 16236015
+[exit code 0]
+
+$ wuji upgrade --check
+0/1 device(s) have updates available
+┌──────────────────┬─────────────┬─────────┬────────┬────────────�?�?SN               �?Device Type �?Current �?Latest �?Status     �?╞══════════════════╪═════════════╪═════════╪════════╪════════════╡
+�?WH2KA01260824017 �?wuji_hand_2 �?3.0.0   �?3.0.0  �?up to date �?└──────────────────┴─────────────┴─────────┴────────┴────────────�?
+[exit code 0]
+
+$ tactile_probe.py
+[2026-11-13T20:02:59 INFO  wuji_sdk] SDK log file: C:\Users\xiang\.wuji/logs\sdk_2026-11-13.log
+[2026-11-13T20:02:59 INFO  wuji_sdk] Wuji SDK 2026.11.9 (6e5c69c2)
+[2026-11-13T20:03:01 INFO  wuji_sdk] WH2KA01260824017 (ip: 192.168.1.111:50001, via 192.168.1.50)
+[2026-11-13T20:03:01 INFO  wuji_sdk] Zenoh scan: found 0 device(s)
+[2026-11-13T20:03:01 INFO  wuji_sdk] scan complete: 1 device(s) total (Udp: 1)
+[2026-11-13T20:03:01 INFO  wuji_sdk] Discovered device: WH2KA01260824017 (IP: 192.168.1.111:50001, FW: 3.0.0)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET device_mode -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET control_mode -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [wuji_hand_2] param readback sn=WH2KA01260824017 path=control_mode thumb/S1 control_mode=mit thumb/S2 control_mode=mit thumb/S3 control_mode=mit thumb/S4 control_mode=mit index/S1 control_mode=mit index/S2 control_mode=mit index/S3 control_mode=mit index/S4 control_mode=mit middle/S1 control_mode=mit middle/S2 control_mode=mit middle/S3 control_mode=mit middle/S4 control_mode=mit ring/S1 control_mode=mit ring/S2 control_mode=mit ring/S3 control_mode=mit ring/S4 control_mode=mit pinky/S1 control_mode=mit pinky/S2 control_mode=mit pinky/S3 control_mode=mit pinky/S4 control_mode=mit
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET mit_params -> {"joints":[{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1},{"kp":1.5,"kd":0.1}]}
+[2026-11-13T20:03:01 INFO  wuji_sdk] [wuji_hand_2] param readback sn=WH2KA01260824017 path=mit_params thumb/S1 kp=1.5 kd=0.1 thumb/S2 kp=1.5 kd=0.1 thumb/S3 kp=1.5 kd=0.1 thumb/S4 kp=1.5 kd=0.1 index/S1 kp=1.5 kd=0.1 index/S2 kp=1.5 kd=0.1 index/S3 kp=1.5 kd=0.1 index/S4 kp=1.5 kd=0.1 middle/S1 kp=1.5 kd=0.1 middle/S2 kp=1.5 kd=0.1 middle/S3 kp=1.5 kd=0.1 middle/S4 kp=1.5 kd=0.1 ring/S1 kp=1.5 kd=0.1 ring/S2 kp=1.5 kd=0.1 ring/S3 kp=1.5 kd=0.1 ring/S4 kp=1.5 kd=0.1 pinky/S1 kp=1.5 kd=0.1 pinky/S2 kp=1.5 kd=0.1 pinky/S3 kp=1.5 kd=0.1 pinky/S4 kp=1.5 kd=0.1
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET effort_limit -> {"joints":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5]}
+[2026-11-13T20:03:01 INFO  wuji_sdk] [wuji_hand_2] param readback sn=WH2KA01260824017 path=effort_limit thumb/S1 effort_limit=1.5 thumb/S2 effort_limit=1.5 thumb/S3 effort_limit=1.5 thumb/S4 effort_limit=1.5 index/S1 effort_limit=1.5 index/S2 effort_limit=1.5 index/S3 effort_limit=1.5 index/S4 effort_limit=1.5 middle/S1 effort_limit=1.5 middle/S2 effort_limit=1.5 middle/S3 effort_limit=1.5 middle/S4 effort_limit=1.5 ring/S1 effort_limit=1.5 ring/S2 effort_limit=1.5 ring/S3 effort_limit=1.5 ring/S4 effort_limit=1.5 pinky/S1 effort_limit=1.5 pinky/S2 effort_limit=1.5 pinky/S3 effort_limit=1.5 pinky/S4 effort_limit=1.5
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET hw_version -> {"major":0,"minor":2,"patch":0}
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET firmware_version -> "v3.0.0"
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET comm_diag/hand -> ok
+# tactile probe 2026-11-13T20:02:58
+wuji_sdk 2026.11.9
+scan: sn=WH2KA01260824017 ip=192.168.1.111:50001 transport=UDP type=DeviceType.WujiHand2
+connected: WH2KA01260824017 (WujiHand2)
+hw_version: HwVersion(major=0, minor=2, patch=0)
+firmware_version (get): 'v3.0.0'
+online_joints_count: 20
+nodes: ['/ring/S2', '/index/S1', '/ring/S4', '/middle/S3', '/index/S4', '/pinky/S4', '/thumb/S4', '/middle/S1', '/', '/ring/tactile', '/thumb/S3', '/pinky/S1', '/pinky/tactile', '/index/tactile', '/thumb/S2', '/ring/S3', '/thumb/S1', '/middle/S2', '/index/S2', '/middle/S4', '/middle/tactile', '/thumb/tactile', '/ring/S1', '/pinky/S2', '/pinky/S3', '/index/S3']
+topics: ['joint_command', 'imu', 'fingertip/thumb/data', 'fingertip/index/data', 'fingertip/middle/data', 'fingertip/ring/data', 'fingertip/pinky/data', 'joint_states', 'joint_diagnostics']
+params: ['firmware_version', 'master_version_detail', 'status', 'node_online', 'ip_address', 'data_port', 'serial_number', 'board_temperature', 'input_voltage', 'handedness', 'echo', 'slave_version', 'health_status', 'comm_diag.hand', 'hw_version', 'mit_params', 'imu', 'motor_enable', 'motor_disable', 'clear_fault', 'emergency_stop', 'set_origin', 'clear_origin', 'effort_limit', 'thumb.S1.node_info', 'thumb.S1.mit_params', 'thumb.S1.hw_version', 'thumb.S1.error_status', 'thumb.S1.status_word', 'thumb.S1.error_log', 'thumb.S1.error_code', 'thumb.S1.soft_pos_min', 'thumb.S1.soft_pos_max', 'thumb.S1.soft_limit_enabled', 'thumb.S1.effort_limit', 'thumb.S1.set_origin', 'thumb.S1.clear_origin', 'thumb.S1.od.action_set_constant', 'thumb.S1.od.action_set_position_table', 'thumb.S1.thermal_effort_limit', 'thumb.S2.node_info', 'thumb.S2.mit_params', 'thumb.S2.hw_version', 'thumb.S2.error_status', 'thumb.S2.status_word', 'thumb.S2.error_log', 'thumb.S2.error_code', 'thumb.S2.soft_pos_min', 'thumb.S2.soft_pos_max', 'thumb.S2.soft_limit_enabled', 'thumb.S2.effort_limit', 'thumb.S2.set_origin', 'thumb.S2.clear_origin', 'thumb.S2.od.action_set_constant', 'thumb.S2.od.action_set_position_table', 'thumb.S2.thermal_effort_limit', 'thumb.S3.node_info', 'thumb.S3.mit_params', 'thumb.S3.hw_version', 'thumb.S3.error_status', 'thumb.S3.status_word', 'thumb.S3.error_log', 'thumb.S3.error_code', 'thumb.S3.soft_pos_min', 'thumb.S3.soft_pos_max', 'thumb.S3.soft_limit_enabled', 'thumb.S3.effort_limit', 'thumb.S3.set_origin', 'thumb.S3.clear_origin', 'thumb.S3.od.action_set_constant', 'thumb.S3.od.action_set_position_table', 'thumb.S3.thermal_effort_limit', 'thumb.S4.node_info', 'thumb.S4.mit_params', 'thumb.S4.hw_version', 'thumb.S4.error_status', 'thumb.S4.status_word', 'thumb.S4.error_log', 'thumb.S4.error_code', 'thumb.S4.soft_pos_min', 'thumb.S4.soft_pos_max', 'thumb.S4.soft_limit_enabled', 'thumb.S4.effort_limit', 'thumb.S4.set_origin', 'thumb.S4.clear_origin', 'thumb.S4.od.action_set_constant', 'thumb.S4.od.action_set_position_table', 'thumb.S4.thermal_effort_limit', 'thumb.tactile.echo', 'index.S1.node_info', 'index.S1.mit_params', 'index.S1.hw_version', 'index.S1.error_status', 'index.S1.status_word', 'index.S1.error_log', 'index.S1.error_code', 'index.S1.soft_pos_min', 'index.S1.soft_pos_max', 'index.S1.soft_limit_enabled', 'index.S1.effort_limit', 'index.S1.set_origin', 'index.S1.clear_origin', 'index.S1.od.action_set_constant', 'index.S1.od.action_set_position_table', 'index.S1.thermal_effort_limit', 'index.S2.node_info', 'index.S2.mit_params', 'index.S2.hw_version', 'index.S2.error_status', 'index.S2.status_word', 'index.S2.error_log', 'index.S2.error_code', 'index.S2.soft_pos_min', 'index.S2.soft_pos_max', 'index.S2.soft_limit_enabled', 'index.S2.effort_limit', 'index.S2.set_origin', 'index.S2.clear_origin', 'index.S2.od.action_set_constant', 'index.S2.od.action_set_position_table', 'index.S2.thermal_effort_limit', 'index.S3.node_info', 'index.S3.mit_params', 'index.S3.hw_version', 'index.S3.error_status', 'index.S3.status_word', 'index.S3.error_log', 'index.S3.error_code', 'index.S3.soft_pos_min', 'index.S3.soft_pos_max', 'index.S3.soft_limit_enabled', 'index.S3.effort_limit', 'index.S3.set_origin', 'index.S3.clear_origin', 'index.S3.od.action_set_constant', 'index.S3.od.action_set_position_table', 'index.S3.thermal_effort_limit', 'index.S4.node_info', 'index.S4.mit_params', 'index.S4.hw_version', 'index.S4.error_status', 'index.S4.status_word', 'index.S4.error_log', 'index.S4.error_code', 'index.S4.soft_pos_min', 'index.S4.soft_pos_max', 'index.S4.soft_limit_enabled', 'index.S4.effort_limit', 'index.S4.set_origin', 'index.S4.clear_origin', 'index.S4.od.action_set_constant', 'index.S4.od.action_set_position_table', 'index.S4.thermal_effort_limit', 'index.tactile.echo', 'middle.S1.node_info', 'middle.S1.mit_params', 'middle.S1.hw_version', 'middle.S1.error_status', 'middle.S1.status_word', 'middle.S1.error_log', 'middle.S1.error_code', 'middle.S1.soft_pos_min', 'middle.S1.soft_pos_max', 'middle.S1.soft_limit_enabled', 'middle.S1.effort_limit', 'middle.S1.set_origin', 'middle.S1.clear_origin', 'middle.S1.od.action_set_constant', 'middle.S1.od.action_set_position_table', 'middle.S1.thermal_effort_limit', 'middle.S2.node_info', 'middle.S2.mit_params', 'middle.S2.hw_version', 'middle.S2.error_status', 'middle.S2.status_word', 'middle.S2.error_log', 'middle.S2.error_code', 'middle.S2.soft_pos_min', 'middle.S2.soft_pos_max', 'middle.S2.soft_limit_enabled', 'middle.S2.effort_limit', 'middle.S2.set_origin', 'middle.S2.clear_origin', 'middle.S2.od.action_set_constant', 'middle.S2.od.action_set_position_table', 'middle.S2.thermal_effort_limit', 'middle.S3.node_info', 'middle.S3.mit_params', 'middle.S3.hw_version', 'middle.S3.error_status', 'middle.S3.status_word', 'middle.S3.error_log', 'middle.S3.error_code', 'middle.S3.soft_pos_min', 'middle.S3.soft_pos_max', 'middle.S3.soft_limit_enabled', 'middle.S3.effort_limit', 'middle.S3.set_origin', 'middle.S3.clear_origin', 'middle.S3.od.action_set_constant', 'middle.S3.od.action_set_position_table', 'middle.S3.thermal_effort_limit', 'middle.S4.node_info', 'middle.S4.mit_params', 'middle.S4.hw_version', 'middle.S4.error_status', 'middle.S4.status_word', 'middle.S4.error_log', 'middle.S4.error_code', 'middle.S4.soft_pos_min', 'middle.S4.soft_pos_max', 'middle.S4.soft_limit_enabled', 'middle.S4.effort_limit', 'middle.S4.set_origin', 'middle.S4.clear_origin', 'middle.S4.od.action_set_constant', 'middle.S4.od.action_set_position_table', 'middle.S4.thermal_effort_limit', 'middle.tactile.echo', 'ring.S1.node_info', 'ring.S1.mit_params', 'ring.S1.hw_version', 'ring.S1.error_status', 'ring.S1.status_word', 'ring.S1.error_log', 'ring.S1.error_code', 'ring.S1.soft_pos_min', 'ring.S1.soft_pos_max', 'ring.S1.soft_limit_enabled', 'ring.S1.effort_limit', 'ring.S1.set_origin', 'ring.S1.clear_origin', 'ring.S1.od.action_set_constant', 'ring.S1.od.action_set_position_table', 'ring.S1.thermal_effort_limit', 'ring.S2.node_info', 'ring.S2.mit_params', 'ring.S2.hw_version', 'ring.S2.error_status', 'ring.S2.status_word', 'ring.S2.error_log', 'ring.S2.error_code', 'ring.S2.soft_pos_min', 'ring.S2.soft_pos_max', 'ring.S2.soft_limit_enabled', 'ring.S2.effort_limit', 'ring.S2.set_origin', 'ring.S2.clear_origin', 'ring.S2.od.action_set_constant', 'ring.S2.od.action_set_position_table', 'ring.S2.thermal_effort_limit', 'ring.S3.node_info', 'ring.S3.mit_params', 'ring.S3.hw_version', 'ring.S3.error_status', 'ring.S3.status_word', 'ring.S3.error_log', 'ring.S3.error_code', 'ring.S3.soft_pos_min', 'ring.S3.soft_pos_max', 'ring.S3.soft_limit_enabled', 'ring.S3.effort_limit', 'ring.S3.set_origin', 'ring.S3.clear_origin', 'ring.S3.od.action_set_constant', 'ring.S3.od.action_set_position_table', 'ring.S3.thermal_effort_limit', 'ring.S4.node_info', 'ring.S4.mit_params', 'ring.S4.hw_version', 'ring.S4.error_status', 'ring.S4.status_word', 'ring.S4.error_log', 'ring.S4.error_code', 'ring.S4.soft_pos_min', 'ring.S4.soft_pos_max', 'ring.S4.soft_limit_enabled', 'ring.S4.effort_limit', 'ring.S4.set_origin', 'ring.S4.clear_origin', 'ring.S4.od.action_set_constant', 'ring.S4.od.action_set_position_table', 'ring.S4.thermal_effort_limit', 'ring.tactile.echo', 'pinky.S1.node_info', 'pinky.S1.mit_params', 'pinky.S1.hw_version', 'pinky.S1.error_status', 'pinky.S1.status_word', 'pinky.S1.error_log', 'pinky.S1.error_code', 'pinky.S1.soft_pos_min', 'pinky.S1.soft_pos_max', 'pinky.S1.soft_limit_enabled', 'pinky.S1.effort_limit', 'pinky.S1.set_origin', 'pinky.S1.clear_origin', 'pinky.S1.od.action_set_constant', 'pinky.S1.od.action_set_position_table', 'pinky.S1.thermal_effort_limit', 'pinky.S2.node_info', 'pinky.S2.mit_params', 'pinky.S2.hw_version', 'pinky.S2.error_status', 'pinky.S2.status_word', 'pinky.S2.error_log', 'pinky.S2.error_code', 'pinky.S2.soft_pos_min', 'pinky.S2.soft_pos_max', 'pinky.S2.soft_limit_enabled', 'pinky.S2.effort_limit', 'pinky.S2.set_origin', 'pinky.S2.clear_origin', 'pinky.S2.od.action_set_constant', 'pinky.S2.od.action_set_position_table', 'pinky.S2.thermal_effort_limit', 'pinky.S3.node_info', 'pinky.S3.mit_params', 'pinky.S3.hw_version', 'pinky.S3.error_status', 'pinky.S3.status_word', 'pinky.S3.error_log', 'pinky.S3.error_code', 'pinky.S3.soft_pos_min', 'pinky.S3.soft_pos_max', 'pinky.S3.soft_limit_enabled', 'pinky.S3.effort_limit', 'pinky.S3.set_origin', 'pinky.S3.clear_origin', 'pinky.S3.od.action_set_constant', 'pinky.S3.od.action_set_position_table', 'pinky.S3.thermal_effort_limit', 'pinky.S4.node_info', 'pinky.S4.mit_params', 'pinky.S4.hw_version', 'pinky.S4.error_status', 'pinky.S4.status_word', 'pinky.S4.error_log', 'pinky.S4.error_code', 'pinky.S4.soft_pos_min', 'pinky.S4.soft_pos_max', 'pinky.S4.soft_limit_enabled', 'pinky.S4.effort_limit', 'pinky.S4.set_origin', 'pinky.S4.clear_origin', 'pinky.S4.od.action_set_constant', 'pinky.S4.od.action_set_position_table', 'pinky.S4.thermal_effort_limit', 'pinky.tactile.echo']
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET node_online -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET status -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET health_status -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET master_version_detail -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET slave_version -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET board_temperature -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET input_voltage -> 12.220611
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET handedness -> 2
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET thumb.tactile.echo -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET thumb.S1.node_info -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET index.tactile.echo -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET index.S1.node_info -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET middle.tactile.echo -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET middle.S1.node_info -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET ring.tactile.echo -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET ring.S1.node_info -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET pinky.tactile.echo -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET pinky.S1.node_info -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET tactile_online -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] EXECUTE thumb/tactile/tactile_query_status
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET thumb/tactile/tactile_state -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] EXECUTE index/tactile/tactile_query_status
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET index/tactile/tactile_state -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] EXECUTE middle/tactile/tactile_query_status
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET middle/tactile/tactile_state -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] EXECUTE ring/tactile/tactile_query_status
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET ring/tactile/tactile_state -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] EXECUTE pinky/tactile/tactile_query_status
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET pinky/tactile/tactile_state -> err: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE joint_diagnostics
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] GET comm_diag/hand -> ok
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/thumb/data
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/index/data
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/middle/data
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/ring/data
+[2026-11-13T20:03:01 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/pinky/data
+[2026-11-13T20:03:02 INFO  wuji_sdk] WH2KA01260824017 error-code stream attached power_on_total_s=46 power_on_s=46 fault_free_sec=46 fault_rising=false last_fall_s=0
+[2026-11-13T20:03:04 INFO  wuji_sdk] [WH2KA01260824017] SUBSCRIBE fingertip/thumb/data
+[2026-11-13T20:03:04 INFO  wuji_sdk] Disconnected: status=0
+resources: ['firmware_version', 'master_version_detail', 'status', 'node_online', 'ip_address', 'data_port', 'serial_number', 'board_temperature', 'input_voltage', 'handedness', 'reboot', 'echo', 'slave_version', 'health_status', 'comm_diag/hand', 'hw_version', 'joint_command', 'mit_params', 'imu', 'motor_enable', 'motor_disable', 'clear_fault', 'emergency_stop', 'set_origin', 'clear_origin', 'effort_limit', 'fingertip/thumb/data', 'fingertip/index/data', 'fingertip/middle/data', 'fingertip/ring/data', 'fingertip/pinky/data', 'thumb/S1/node_info', 'thumb/S1/mit_params', 'thumb/S1/hw_version', 'thumb/S1/error_status', 'thumb/S1/status_word', 'thumb/S1/error_log', 'thumb/S1/error_code', 'thumb/S1/soft_pos_min', 'thumb/S1/soft_pos_max', 'thumb/S1/soft_limit_enabled', 'thumb/S1/effort_limit', 'thumb/S1/set_origin', 'thumb/S1/clear_origin', 'thumb/S1/od/action_set_constant', 'thumb/S1/od/action_set_position_table', 'thumb/S1/thermal_effort_limit', 'thumb/S2/node_info', 'thumb/S2/mit_params', 'thumb/S2/hw_version', 'thumb/S2/error_status', 'thumb/S2/status_word', 'thumb/S2/error_log', 'thumb/S2/error_code', 'thumb/S2/soft_pos_min', 'thumb/S2/soft_pos_max', 'thumb/S2/soft_limit_enabled', 'thumb/S2/effort_limit', 'thumb/S2/set_origin', 'thumb/S2/clear_origin', 'thumb/S2/od/action_set_constant', 'thumb/S2/od/action_set_position_table', 'thumb/S2/thermal_effort_limit', 'thumb/S3/node_info', 'thumb/S3/mit_params', 'thumb/S3/hw_version', 'thumb/S3/error_status', 'thumb/S3/status_word', 'thumb/S3/error_log', 'thumb/S3/error_code', 'thumb/S3/soft_pos_min', 'thumb/S3/soft_pos_max', 'thumb/S3/soft_limit_enabled', 'thumb/S3/effort_limit', 'thumb/S3/set_origin', 'thumb/S3/clear_origin', 'thumb/S3/od/action_set_constant', 'thumb/S3/od/action_set_position_table', 'thumb/S3/thermal_effort_limit', 'thumb/S4/node_info', 'thumb/S4/mit_params', 'thumb/S4/hw_version', 'thumb/S4/error_status', 'thumb/S4/status_word', 'thumb/S4/error_log', 'thumb/S4/error_code', 'thumb/S4/soft_pos_min', 'thumb/S4/soft_pos_max', 'thumb/S4/soft_limit_enabled', 'thumb/S4/effort_limit', 'thumb/S4/set_origin', 'thumb/S4/clear_origin', 'thumb/S4/od/action_set_constant', 'thumb/S4/od/action_set_position_table', 'thumb/S4/thermal_effort_limit', 'thumb/tactile/echo', 'index/S1/node_info', 'index/S1/mit_params', 'index/S1/hw_version', 'index/S1/error_status', 'index/S1/status_word', 'index/S1/error_log', 'index/S1/error_code', 'index/S1/soft_pos_min', 'index/S1/soft_pos_max', 'index/S1/soft_limit_enabled', 'index/S1/effort_limit', 'index/S1/set_origin', 'index/S1/clear_origin', 'index/S1/od/action_set_constant', 'index/S1/od/action_set_position_table', 'index/S1/thermal_effort_limit', 'index/S2/node_info', 'index/S2/mit_params', 'index/S2/hw_version', 'index/S2/error_status', 'index/S2/status_word', 'index/S2/error_log', 'index/S2/error_code', 'index/S2/soft_pos_min', 'index/S2/soft_pos_max', 'index/S2/soft_limit_enabled', 'index/S2/effort_limit', 'index/S2/set_origin', 'index/S2/clear_origin', 'index/S2/od/action_set_constant', 'index/S2/od/action_set_position_table', 'index/S2/thermal_effort_limit', 'index/S3/node_info', 'index/S3/mit_params', 'index/S3/hw_version', 'index/S3/error_status', 'index/S3/status_word', 'index/S3/error_log', 'index/S3/error_code', 'index/S3/soft_pos_min', 'index/S3/soft_pos_max', 'index/S3/soft_limit_enabled', 'index/S3/effort_limit', 'index/S3/set_origin', 'index/S3/clear_origin', 'index/S3/od/action_set_constant', 'index/S3/od/action_set_position_table', 'index/S3/thermal_effort_limit', 'index/S4/node_info', 'index/S4/mit_params', 'index/S4/hw_version', 'index/S4/error_status', 'index/S4/status_word', 'index/S4/error_log', 'index/S4/error_code', 'index/S4/soft_pos_min', 'index/S4/soft_pos_max', 'index/S4/soft_limit_enabled', 'index/S4/effort_limit', 'index/S4/set_origin', 'index/S4/clear_origin', 'index/S4/od/action_set_constant', 'index/S4/od/action_set_position_table', 'index/S4/thermal_effort_limit', 'index/tactile/echo', 'middle/S1/node_info', 'middle/S1/mit_params', 'middle/S1/hw_version', 'middle/S1/error_status', 'middle/S1/status_word', 'middle/S1/error_log', 'middle/S1/error_code', 'middle/S1/soft_pos_min', 'middle/S1/soft_pos_max', 'middle/S1/soft_limit_enabled', 'middle/S1/effort_limit', 'middle/S1/set_origin', 'middle/S1/clear_origin', 'middle/S1/od/action_set_constant', 'middle/S1/od/action_set_position_table', 'middle/S1/thermal_effort_limit', 'middle/S2/node_info', 'middle/S2/mit_params', 'middle/S2/hw_version', 'middle/S2/error_status', 'middle/S2/status_word', 'middle/S2/error_log', 'middle/S2/error_code', 'middle/S2/soft_pos_min', 'middle/S2/soft_pos_max', 'middle/S2/soft_limit_enabled', 'middle/S2/effort_limit', 'middle/S2/set_origin', 'middle/S2/clear_origin', 'middle/S2/od/action_set_constant', 'middle/S2/od/action_set_position_table', 'middle/S2/thermal_effort_limit', 'middle/S3/node_info', 'middle/S3/mit_params', 'middle/S3/hw_version', 'middle/S3/error_status', 'middle/S3/status_word', 'middle/S3/error_log', 'middle/S3/error_code', 'middle/S3/soft_pos_min', 'middle/S3/soft_pos_max', 'middle/S3/soft_limit_enabled', 'middle/S3/effort_limit', 'middle/S3/set_origin', 'middle/S3/clear_origin', 'middle/S3/od/action_set_constant', 'middle/S3/od/action_set_position_table', 'middle/S3/thermal_effort_limit', 'middle/S4/node_info', 'middle/S4/mit_params', 'middle/S4/hw_version', 'middle/S4/error_status', 'middle/S4/status_word', 'middle/S4/error_log', 'middle/S4/error_code', 'middle/S4/soft_pos_min', 'middle/S4/soft_pos_max', 'middle/S4/soft_limit_enabled', 'middle/S4/effort_limit', 'middle/S4/set_origin', 'middle/S4/clear_origin', 'middle/S4/od/action_set_constant', 'middle/S4/od/action_set_position_table', 'middle/S4/thermal_effort_limit', 'middle/tactile/echo', 'ring/S1/node_info', 'ring/S1/mit_params', 'ring/S1/hw_version', 'ring/S1/error_status', 'ring/S1/status_word', 'ring/S1/error_log', 'ring/S1/error_code', 'ring/S1/soft_pos_min', 'ring/S1/soft_pos_max', 'ring/S1/soft_limit_enabled', 'ring/S1/effort_limit', 'ring/S1/set_origin', 'ring/S1/clear_origin', 'ring/S1/od/action_set_constant', 'ring/S1/od/action_set_position_table', 'ring/S1/thermal_effort_limit', 'ring/S2/node_info', 'ring/S2/mit_params', 'ring/S2/hw_version', 'ring/S2/error_status', 'ring/S2/status_word', 'ring/S2/error_log', 'ring/S2/error_code', 'ring/S2/soft_pos_min', 'ring/S2/soft_pos_max', 'ring/S2/soft_limit_enabled', 'ring/S2/effort_limit', 'ring/S2/set_origin', 'ring/S2/clear_origin', 'ring/S2/od/action_set_constant', 'ring/S2/od/action_set_position_table', 'ring/S2/thermal_effort_limit', 'ring/S3/node_info', 'ring/S3/mit_params', 'ring/S3/hw_version', 'ring/S3/error_status', 'ring/S3/status_word', 'ring/S3/error_log', 'ring/S3/error_code', 'ring/S3/soft_pos_min', 'ring/S3/soft_pos_max', 'ring/S3/soft_limit_enabled', 'ring/S3/effort_limit', 'ring/S3/set_origin', 'ring/S3/clear_origin', 'ring/S3/od/action_set_constant', 'ring/S3/od/action_set_position_table', 'ring/S3/thermal_effort_limit', 'ring/S4/node_info', 'ring/S4/mit_params', 'ring/S4/hw_version', 'ring/S4/error_status', 'ring/S4/status_word', 'ring/S4/error_log', 'ring/S4/error_code', 'ring/S4/soft_pos_min', 'ring/S4/soft_pos_max', 'ring/S4/soft_limit_enabled', 'ring/S4/effort_limit', 'ring/S4/set_origin', 'ring/S4/clear_origin', 'ring/S4/od/action_set_constant', 'ring/S4/od/action_set_position_table', 'ring/S4/thermal_effort_limit', 'ring/tactile/echo', 'pinky/S1/node_info', 'pinky/S1/mit_params', 'pinky/S1/hw_version', 'pinky/S1/error_status', 'pinky/S1/status_word', 'pinky/S1/error_log', 'pinky/S1/error_code', 'pinky/S1/soft_pos_min', 'pinky/S1/soft_pos_max', 'pinky/S1/soft_limit_enabled', 'pinky/S1/effort_limit', 'pinky/S1/set_origin', 'pinky/S1/clear_origin', 'pinky/S1/od/action_set_constant', 'pinky/S1/od/action_set_position_table', 'pinky/S1/thermal_effort_limit', 'pinky/S2/node_info', 'pinky/S2/mit_params', 'pinky/S2/hw_version', 'pinky/S2/error_status', 'pinky/S2/status_word', 'pinky/S2/error_log', 'pinky/S2/error_code', 'pinky/S2/soft_pos_min', 'pinky/S2/soft_pos_max', 'pinky/S2/soft_limit_enabled', 'pinky/S2/effort_limit', 'pinky/S2/set_origin', 'pinky/S2/clear_origin', 'pinky/S2/od/action_set_constant', 'pinky/S2/od/action_set_position_table', 'pinky/S2/thermal_effort_limit', 'pinky/S3/node_info', 'pinky/S3/mit_params', 'pinky/S3/hw_version', 'pinky/S3/error_status', 'pinky/S3/status_word', 'pinky/S3/error_log', 'pinky/S3/error_code', 'pinky/S3/soft_pos_min', 'pinky/S3/soft_pos_max', 'pinky/S3/soft_limit_enabled', 'pinky/S3/effort_limit', 'pinky/S3/set_origin', 'pinky/S3/clear_origin', 'pinky/S3/od/action_set_constant', 'pinky/S3/od/action_set_position_table', 'pinky/S3/thermal_effort_limit', 'pinky/S4/node_info', 'pinky/S4/mit_params', 'pinky/S4/hw_version', 'pinky/S4/error_status', 'pinky/S4/status_word', 'pinky/S4/error_log', 'pinky/S4/error_code', 'pinky/S4/soft_pos_min', 'pinky/S4/soft_pos_max', 'pinky/S4/soft_limit_enabled', 'pinky/S4/effort_limit', 'pinky/S4/set_origin', 'pinky/S4/clear_origin', 'pinky/S4/od/action_set_constant', 'pinky/S4/od/action_set_position_table', 'pinky/S4/thermal_effort_limit', 'pinky/tactile/echo', 'joint_states', 'joint_diagnostics']
+get('node_online'): 16236015
+get('status'): 0
+get('health_status'): b'\x01\x10B\x08\x01'
+get('master_version_detail'): b'\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03'
+get('slave_version'): b'\x14\x00\x01\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x00\x02\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x00\x03\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x00\x04\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x01\x01\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x01\x02\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x01\x03\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x01\x04\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x02\x01\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x02\x02\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x02\x03\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03\x02\x04\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03\x03\x01\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x03\x02\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x03\x03\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x03\x04\x01\x01\r\x02\x00\x00\x00\x03\x00\x03\x03\x04\x01\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03\x04\x02\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03\x04\x03\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03\x04\x04\x00\x00\x00\x03\x00\x01\r\x02\x00\x03\x03'
+get('board_temperature'): 50.32257843017578
+get('input_voltage'): 12.220610618591309
+get('handedness'): 2
+get('thumb.tactile.tactile_type'): ERROR WujiException: Path not found: thumb.tactile.tactile_type
+get('thumb.tactile.tactile_state'): ERROR WujiException: Path not found: thumb.tactile.tactile_state
+get('thumb.tactile.echo'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('thumb.tactile.node_info'): ERROR WujiException: Path not found: thumb.tactile.node_info
+get('thumb.tactile.hw_version'): ERROR WujiException: Path not found: thumb.tactile.hw_version
+get('thumb.tactile.error_status'): ERROR WujiException: Path not found: thumb.tactile.error_status
+get('thumb.S1.node_info'): b'\x01'
+get('index.tactile.tactile_type'): ERROR WujiException: Path not found: index.tactile.tactile_type
+get('index.tactile.tactile_state'): ERROR WujiException: Path not found: index.tactile.tactile_state
+get('index.tactile.echo'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('index.tactile.node_info'): ERROR WujiException: Path not found: index.tactile.node_info
+get('index.tactile.hw_version'): ERROR WujiException: Path not found: index.tactile.hw_version
+get('index.tactile.error_status'): ERROR WujiException: Path not found: index.tactile.error_status
+get('index.S1.node_info'): b'\x01'
+get('middle.tactile.tactile_type'): ERROR WujiException: Path not found: middle.tactile.tactile_type
+get('middle.tactile.tactile_state'): ERROR WujiException: Path not found: middle.tactile.tactile_state
+get('middle.tactile.echo'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('middle.tactile.node_info'): ERROR WujiException: Path not found: middle.tactile.node_info
+get('middle.tactile.hw_version'): ERROR WujiException: Path not found: middle.tactile.hw_version
+get('middle.tactile.error_status'): ERROR WujiException: Path not found: middle.tactile.error_status
+get('middle.S1.node_info'): b'\x01'
+get('ring.tactile.tactile_type'): ERROR WujiException: Path not found: ring.tactile.tactile_type
+get('ring.tactile.tactile_state'): ERROR WujiException: Path not found: ring.tactile.tactile_state
+get('ring.tactile.echo'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('ring.tactile.node_info'): ERROR WujiException: Path not found: ring.tactile.node_info
+get('ring.tactile.hw_version'): ERROR WujiException: Path not found: ring.tactile.hw_version
+get('ring.tactile.error_status'): ERROR WujiException: Path not found: ring.tactile.error_status
+get('ring.S1.node_info'): b'\x01'
+get('pinky.tactile.tactile_type'): ERROR WujiException: Path not found: pinky.tactile.tactile_type
+get('pinky.tactile.tactile_state'): ERROR WujiException: Path not found: pinky.tactile.tactile_state
+get('pinky.tactile.echo'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.tactile.node_info'): ERROR WujiException: Path not found: pinky.tactile.node_info
+get('pinky.tactile.hw_version'): ERROR WujiException: Path not found: pinky.tactile.hw_version
+get('pinky.tactile.error_status'): ERROR WujiException: Path not found: pinky.tactile.error_status
+get('pinky.S1.node_info'): b''
+fingertip_online: [False, False, False, False, False]
+fingertip_thumb_status.get: ERROR NodeOfflineError: tactile node offline: thumb (node not on the bus; check that the fingertip module is connected)
+fingertip_thumb_info.get: ERROR NodeOfflineError: tactile node offline: thumb (node not on the bus; check that the fingertip module is connected)
+fingertip_index_status.get: ERROR NodeOfflineError: tactile node offline: index (node not on the bus; check that the fingertip module is connected)
+fingertip_index_info.get: ERROR NodeOfflineError: tactile node offline: index (node not on the bus; check that the fingertip module is connected)
+fingertip_middle_status.get: ERROR NodeOfflineError: tactile node offline: middle (node not on the bus; check that the fingertip module is connected)
+fingertip_middle_info.get: ERROR NodeOfflineError: tactile node offline: middle (node not on the bus; check that the fingertip module is connected)
+fingertip_ring_status.get: ERROR NodeOfflineError: tactile node offline: ring (node not on the bus; check that the fingertip module is connected)
+fingertip_ring_info.get: ERROR NodeOfflineError: tactile node offline: ring (node not on the bus; check that the fingertip module is connected)
+fingertip_pinky_status.get: ERROR NodeOfflineError: tactile node offline: pinky (node not on the bus; check that the fingertip module is connected)
+fingertip_pinky_info.get: ERROR NodeOfflineError: tactile node offline: pinky (node not on the bus; check that the fingertip module is connected)
+joint_diagnostics frame attrs: ['comm', 'header', 'joints', 'num_joints']
+   frame.comm = Hand2CommSummary(age_ms=34, tactile_online_mask=0, e2e_received=0, e2e_lost=0, e2e_reordered=0, e2e_duplicates=0, e2e_window_loss_x100=0, rpc_total=44, rpc_retries=0, rpc_timeouts=0, comm_get_failures=0, tactile_response_rate_pct=[5], tactile_timeout_total=[5], sdk_dropped=0)
+   comm.tactile_online_mask = 0
+   comm.tactile_response_rate_pct = b'\x00\x00\x00\x00\x00'
+   comm.tactile_timeout_total = [0, 0, 0, 0, 0]
+   comm.age_ms = 34
+comm_diag.get: HandCommunicationDiagnostics(fingers=[5])
+fingertip_thumb_data: subscribed (dtype=FingertipSensorData)
+fingertip_index_data: subscribed (dtype=FingertipSensorData)
+fingertip_middle_data: subscribed (dtype=FingertipSensorData)
+fingertip_ring_data: subscribed (dtype=FingertipSensorData)
+fingertip_pinky_data: subscribed (dtype=FingertipSensorData)
+fingertip_thumb_data: 0 frames in 3 s; first=None
+fingertip_index_data: 0 frames in 3 s; first=None
+fingertip_middle_data: 0 frames in 3 s; first=None
+fingertip_ring_data: 0 frames in 3 s; first=None
+fingertip_pinky_data: 0 frames in 3 s; first=None
+subscribe('thumb/fingertip/data'): ERROR WujiException: Resource not found: thumb/fingertip/data
+subscribe('fingertip/thumb/data'): Subscription(stream_id=17, dtype='FingertipSensorData')
+subscribe('sensor/fingertip_thumb'): ERROR WujiException: Resource not found: sensor/fingertip_thumb
+# done; file: C:\Users\xiang\Documents\GitHub\wuji_hand_poliocy\runs\tactile\probe_2026-11-13_200258.txt
+# done: C:\Users\xiang\Documents\GitHub\wuji_hand_poliocy\runs\tactile\wuji_upgrade_2026-11-13_200001.txt
