@@ -49,8 +49,18 @@ echo [setup] installing numpy, pyyaml, wuji_sdk==2026.11.9
   "%VENV%\Scripts\python.exe" -m pip install matplotlib || (pause & exit /b 1)
 )
 
+set "WUJI=%REPO%\.deps\wuji-mjlab"
+if exist "%WUJI%\deploy\pen_spin\runtime\hand.py" goto :have_wuji
+if exist "%REPO%\..\wuji-mjlab\deploy\pen_spin\runtime\hand.py" (
+  for %%I in ("%REPO%\..\wuji-mjlab") do set "WUJI=%%~fI"
+  goto :have_wuji
+)
+echo [setup] cloning wuji-mjlab (Wuji's deploy runtime, needed for --home) into %WUJI%
+git clone --depth 1 --branch v2026.10.22 https://github.com/wuji-technology/wuji-mjlab "%WUJI%" || (pause & exit /b 1)
+:have_wuji
+
 echo [run] tactile viewer  (close the window or press q to stop; the log goes to runs\tactile\)
-"%VENV%\Scripts\python.exe" "%REPO%\deploy\tactile_viewer.py" %*
+"%VENV%\Scripts\python.exe" "%REPO%\deploy\tactile_viewer.py" --wuji-root "%WUJI%" %*
 echo.
 echo [done] exit code %ERRORLEVEL%
 pause

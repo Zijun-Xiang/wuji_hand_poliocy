@@ -296,36 +296,64 @@ class FingerStream:
 
 
 class RealHand:
-    """Wuji Hand 2 over wuji_sdk: discovery, per-finger info/status, subscriptions."""
+    """Wuji Hand 2 over wuji_sdk: discovery, per-finger info/status, subscriptions.
 
-    def __init__(self, serial_number: str | None, rate_hz: int):
+    `sdk_hand` lets the caller pass an already-connected WujiHand2 (e.g. the one inside Wuji's
+    deploy runtime that is holding the home pose); then this class never disconnects it.
+    The fingertip modules are re-checked every `recheck_s` seconds, so a module that comes
+    online later (re-seated cable, power) starts streaming without a restart.
+    """
+
+    def __init__(self, serial_number: str | None, rate_hz: int, sdk_hand=None, recheck_s: float = 2.0):
         import wuji_sdk
         self.sdk = wuji_sdk
         self.mgr = wuji_sdk.SdkManager.instance()
-        sn = serial_number
-        if not sn:
-            devs = self.mgr.scan()
-            if not devs:
-                raise RuntimeError("no Wuji hand found (USB/UDP) — is it powered and on this network?")
-            if len(devs) > 1:
-                raise RuntimeError("several hands found: " + ", ".join(f"sn={d.sn} ip={d.ip}" for d in devs) + " — pass --hand-sn")
-            sn = devs[0].sn
-            print(f"[hand] found sn={sn} ip={devs[0].ip} transport={devs[0].transport_type}")
-        self.hand = self.mgr.connect(sn=sn, device_name="wuji_hand_2", options=wuji_sdk.ConnectOptions(enable_bridge=False))
+        self.borrowed = sdk_hand is not None
+        if sdk_hand is not None:
+            self.hand = sdk_hand
+        else:
+            sn = serial_number
+            if not sn:
+                devs = self.mgr.scan()
+                if not devs:
+                    raise RuntimeError("no Wuji hand found (USB/UDP) — is it powered and on this network?")
+                if len(devs) > 1:
+                    raise RuntimeError("several hands found: " + ", ".join(f"sn={d.sn} ip={d.ip}" for d in devs) + " — pass --hand-sn")
+                sn = devs[0].sn
+                print(f"[hand] found sn={sn} ip={devs[0].ip} transport={devs[0].transport_type}")
+            self.hand = self.mgr.connect(sn=sn, device_name="wuji_hand_2", options=wuji_sdk.ConnectOptions(enable_bridge=False))
         print(f"[hand] connected: {self.hand.serial_number}")
+        self.rate_hz = rate_hz
+        self.recheck_s = recheck_s
         self.streams = {f: FingerStream(f) for f in FINGERS}
-        try:
-            online = list(self.hand.fingertip_online())
-        except Exception as e:  # older firmware
-            print(f"[hand] fingertip_online() failed ({e}); assuming all five")
-            online = [True] * 5
         self.subs = {}
+        self.last_check = 0.0
+        self.refresh(verbose=True)
+
+    def refresh(self, verbose: bool = False) -> None:
+        """Re-read which fingertip modules are online; (un)subscribe on changes."""
+        self.last_check = time.time()
+        try:
+            online = [bool(x) for x in self.hand.fingertip_online()]
+        except Exception as e:  # older firmware
+            if verbose:
+                print(f"[hand] fingertip_online() failed ({e}); assuming all five")
+            online = [True] * 5
         for f, on in zip(FINGERS, online):
             s = self.streams[f]
-            s.online = bool(on)
+            if on == s.online and (not on or f in self.subs):
+                continue
+            s.online = on
             if not on:
                 print(f"[{f:6s}] tactile module offline")
+                sub = self.subs.pop(f, None)
+                if sub is not None:
+                    try:
+                        sub.close()
+                    except Exception:
+                        pass
                 continue
+            print(f"[{f:6s}] tactile module ONLINE")
             try:
                 st = getattr(self.hand, f"fingertip_{f}_status")().get()
                 s.model, s.state = str(st.model), str(st.state)
@@ -335,15 +363,15 @@ class RealHand:
                 info = getattr(self.hand, f"fingertip_{f}_info")().get()
                 s.rate_hz = float(info.rate_hz)
                 s.decoder = make_decoder(info.format, model=str(info.model))
-                print(f"[{f:6s}] model={info.model} type={info.device_type} rate={info.rate_hz} Hz digest={info.digest}")
+                print(f"[{f:6s}] model={info.model!r} type={info.device_type} rate={info.rate_hz} Hz digest={info.digest}")
                 print(f"[{f:6s}] format={info.format}")
             except Exception as e:
                 print(f"[{f:6s}] info read failed: {e}")
                 s.decoder = make_decoder(None)
             sub = getattr(self.hand, f"fingertip_{f}_data")().subscribe()
-            if rate_hz > 0:
+            if self.rate_hz > 0:
                 try:
-                    applied = sub.set_rate(int(rate_hz))
+                    applied = sub.set_rate(int(self.rate_hz))
                     print(f"[{f:6s}] stream rate set to {applied} Hz")
                 except Exception as e:
                     print(f"[{f:6s}] rate control not available ({e}); device default")
@@ -352,13 +380,19 @@ class RealHand:
     def poll(self, keep_log: bool) -> int:
         n = 0
         now = time.time()
-        for f, sub in self.subs.items():
+        for f, sub in list(self.subs.items()):
             for _ in range(64):              # drain what has arrived since the last poll
-                msg = sub.recv()
+                try:
+                    msg = sub.recv()
+                except Exception as e:
+                    print(f"[{f:6s}] recv error: {e}")
+                    msg = None
                 if msg is None:
                     break
                 self.streams[f].push(msg.data, now, keep_log)
                 n += 1
+        if now - self.last_check > self.recheck_s:
+            self.refresh()
         return n
 
     def calibrate(self):
@@ -370,10 +404,75 @@ class RealHand:
                 sub.close()
             except Exception:
                 pass
+        if not self.borrowed:
+            try:
+                self.mgr.disconnect_all()
+            except Exception:
+                pass
+
+
+class HomePose:
+    """Enable the joints through Wuji's deploy runtime and hold the open 'home' pose (all 20
+    joints at 0 rad) for as long as the viewer runs; eases there and back, disables on exit."""
+
+    def __init__(self, wuji_root: str, serial_number: str | None):
+        import os
+        root = Path(wuji_root).expanduser().resolve() / "deploy" / "pen_spin"
+        if not (root / "runtime" / "hand.py").is_file():
+            raise SystemExit(f"{root} is not wuji-mjlab/deploy/pen_spin (needed for --home)")
+        sys.path.insert(0, str(root))
+        cwd = os.getcwd()
+        os.chdir(root)                      # lib.config_loader reads config/*.yaml relative to the deploy dir
         try:
-            self.mgr.disconnect_all()
+            from lib.config_loader import get_gains, get_timing
+            from runtime import hand as hand_mod
+            gains, timing = get_gains(), get_timing()
+            self.compat = hand_mod.connect_real(serial_number=serial_number, kp=gains["kp"], kd=gains["kd"],
+                                                servo_hz=timing["servo_hz"], interp_s=timing["ctrl_dt"],
+                                                kp_overrides=gains["kp_joint"], kd_overrides=gains["kd_joint"],
+                                                effort_overrides=gains["effort_joint"])
+            self.compat.write_joint_effort_limit(gains["effort"])
+        finally:
+            os.chdir(cwd)
+        self.sdk_hand = self.compat._hand
+        self.ctx = self.compat.realtime_controller()
+        self.ctrl = self.ctx.__enter__()
+        self.compat.write_joint_enabled(True)
+        cur = np.asarray(self.compat.read_joint_actual_position(), dtype=np.float64).reshape(5, 4)
+        print(f"[home] joints enabled (kp={gains['kp']} kd={gains['kd']} effort {gains['effort']} A); easing to the home pose…")
+        self._ease(cur, np.zeros((5, 4)))
+        err = np.rad2deg(np.abs(np.asarray(self.compat.read_joint_actual_position()).reshape(20)).max())
+        print(f"[home] at home pose (max joint error {err:.2f} deg); holding it while the viewer runs")
+
+    def _ease(self, cur, tgt, duration=2.0, rate=50.0):
+        steps = max(1, int(duration * rate))
+        for i in range(steps):
+            t = (i + 1) / steps
+            self.ctrl.set_joint_target_position(cur + (t * t * (3 - 2 * t)) * (tgt - cur))
+            time.sleep(duration / steps)
+
+    def joint_error_deg(self) -> float:
+        try:
+            return float(np.rad2deg(np.abs(np.asarray(self.ctrl.get_joint_actual_position()).reshape(20)).max()))
+        except Exception:
+            return float("nan")
+
+    def close(self):
+        try:
+            self._ease(np.asarray(self.compat.read_joint_actual_position(), dtype=np.float64).reshape(5, 4), np.zeros((5, 4)), duration=1.0)
         except Exception:
             pass
+        try:
+            self.ctx.__exit__(None, None, None)
+        except Exception:
+            pass
+        try:
+            self.compat.write_joint_enabled(False)
+        finally:
+            close = getattr(self.compat, "close", None)
+            if close:
+                close()
+        print("[home] joints disabled, hand closed")
 
 
 class FakeHand:
@@ -434,10 +533,12 @@ def run_gui(hand, args):
     plt.rcParams["toolbar"] = "None"
     fig = plt.figure(figsize=(15, 7.2), facecolor="#111318")
     fig.canvas.manager.set_window_title("Wuji Hand 2 — fingertip tactile sensors") if hasattr(fig.canvas, "manager") and fig.canvas.manager else None
-    gs = fig.add_gridspec(2, 5, height_ratios=[3.2, 1.4], hspace=0.42, wspace=0.28, left=0.04, right=0.985, top=0.9, bottom=0.08)
+    from matplotlib.widgets import Slider
+    gs = fig.add_gridspec(3, 5, height_ratios=[3.0, 1.15, 1.25], hspace=0.55, wspace=0.28, left=0.045, right=0.985, top=0.9, bottom=0.13)
     axes_map = [fig.add_subplot(gs[0, i]) for i in range(5)]
-    ax_ts = fig.add_subplot(gs[1, :])
-    for ax in axes_map + [ax_ts]:
+    ax_bar = fig.add_subplot(gs[1, :])
+    ax_ts = fig.add_subplot(gs[2, :])
+    for ax in axes_map + [ax_ts, ax_bar]:
         ax.set_facecolor("#1b1e26")
         for sp in ax.spines.values():
             sp.set_color("#3a3f4b")
@@ -456,6 +557,29 @@ def run_gui(hand, args):
     ax_ts.set_xlabel("time (s)", color="#9aa0ad", fontsize=9)
     ax_ts.set_ylabel("total fingertip force |F| (N)", color="#9aa0ad", fontsize=9)
     ax_ts.set_xlim(-10, 0)
+
+    # force-vector bars: fx, fy, fz (N) per finger, plus |F| as a thin marker
+    xs = np.arange(5)
+    bw = 0.22
+    bar_sets = {}
+    for j, (comp, col) in enumerate(zip(("fx", "fy", "fz"), ("#ff6b6b", "#8ce99a", "#66d9e8"))):
+        bar_sets[comp] = ax_bar.bar(xs + (j - 1) * bw, np.zeros(5), width=bw, color=col, label=comp)
+    (mag_line,) = ax_bar.plot(xs, np.zeros(5), "o", color="#ffd166", ms=5, label="|F|")
+    ax_bar.axhline(0, color="#3a3f4b", lw=0.8)
+    ax_bar.set_xticks(xs); ax_bar.set_xticklabels(FINGERS, color="#e8e8ec")
+    ax_bar.set_ylabel("force (N)", color="#9aa0ad", fontsize=9)
+    ax_bar.set_ylim(-1, 1)
+    ax_bar.legend(loc="lower right", bbox_to_anchor=(1.0, 1.02), ncol=4, fontsize=8, frameon=False, labelcolor="#e8e8ec")
+    bar_txt = [ax_bar.text(x, 0, "", ha="center", va="bottom", color="#e8e8ec", fontsize=7, family="monospace") for x in xs]
+
+    # slider: colour scale of the pad maps (0 = automatic)
+    ax_sl = fig.add_axes([0.19, 0.035, 0.42, 0.022], facecolor="#1b1e26")
+    sl_scale = Slider(ax_sl, "pad colour scale  (0 = auto)", 0.0, 1.0, valinit=0.0, color="#4c6ef5")
+    sl_scale.label.set_color("#9aa0ad"); sl_scale.valtext.set_color("#e8e8ec")
+    ax_sl2 = fig.add_axes([0.70, 0.035, 0.22, 0.022], facecolor="#1b1e26")
+    sl_smooth = Slider(ax_sl2, "smoothing", 0.0, 0.95, valinit=0.0, color="#4c6ef5")
+    sl_smooth.label.set_color("#9aa0ad"); sl_smooth.valtext.set_color("#e8e8ec")
+    ema: dict[str, dict] = {}
 
     artists: dict[str, dict] = {}
     vmax = {f: 1.0 for f in FINGERS}
@@ -502,7 +626,7 @@ def run_gui(hand, args):
             ax.set_xlabel("around the pad (deg)", color="#9aa0ad", fontsize=7.5)
             if f == "thumb":
                 ax.set_ylabel("along the finger (mm)", color="#9aa0ad", fontsize=7.5)
-            ax.text(0.5, -0.16, f"{n} taxels, 3-axis each", transform=ax.transAxes, ha="center", color="#777", fontsize=7)
+            ax.set_title(f"{f}  ({n} taxels, 3-axis)", color="#e8e8ec", fontsize=10.5, pad=6)
             d = {"kind": "point_array", "sc": sc, "qv": qv, "key": "points", "force_key": "force", "force_unit": "N",
                  "du": du}
             d["force_txt"] = ax.text(0.02, 0.02, "", transform=ax.transAxes, color="#ffd166", fontsize=7, va="bottom", family="monospace")
@@ -539,6 +663,8 @@ def run_gui(hand, args):
         d["info"] = ax.text(0.02, 0.98, "", transform=ax.transAxes, color="#9aa0ad", fontsize=7.5, va="top", family="monospace")
         return d
 
+    forces: dict[str, np.ndarray] = {}
+
     def update(_frame):
         hand.poll(keep_log=bool(args.log))
         now = time.time()
@@ -556,13 +682,22 @@ def run_gui(hand, args):
             key = a.get("key")
             vals = s.latest.get(key) if key else None
             if a["kind"] == "point_array" and vals is not None:
-                pts = vals                                     # (n, 3) normalized fx fy fz
+                pts = np.asarray(vals, dtype=float)             # (n, 3) normalized fx fy fz
+                F = np.asarray(s.latest.get("force", np.zeros(3)), dtype=float)
+                alpha = float(sl_smooth.val)
+                if alpha > 0 and f in ema:
+                    pts = alpha * ema[f]["pts"] + (1 - alpha) * pts
+                    F = alpha * ema[f]["F"] + (1 - alpha) * F
+                ema[f] = {"pts": pts, "F": F}
                 mag = np.linalg.norm(pts, axis=1)
-                F = s.latest.get("force", np.zeros(3))
                 hist[f].append(float(np.linalg.norm(F)))
-                vmax[f] = max(vmax[f] * 0.995, float(np.percentile(mag, 99)) * 1.05, 0.02)
-                floor = 0.15 * max(vmax.values())
-                vmax[f] = max(vmax[f], floor)
+                if sl_scale.val > 0:
+                    vmax[f] = float(sl_scale.val)
+                else:
+                    vmax[f] = max(vmax[f] * 0.995, float(np.percentile(mag, 99)) * 1.05, 0.02)
+                    floor = 0.15 * max(vmax.values())
+                    vmax[f] = max(vmax[f], floor)
+                forces[f] = F
                 a["sc"].set_array(mag); a["sc"].set_clim(0, vmax[f])
                 k = a["du"] / max(vmax[f], 1e-6)              # arrow length: vmax -> one taxel spacing
                 a["qv"].set_UVC(pts[:, 0] * k, pts[:, 1] * k * 0.6)
@@ -595,6 +730,17 @@ def run_gui(hand, args):
                 fx, fy, fz = s.latest[a["force_key"]][:3]
                 a["force_txt"].set_text(f"F=({fx:+.2f},{fy:+.2f},{fz:+.2f}) {a['force_unit']}  |F|={math.sqrt(fx*fx+fy*fy+fz*fz):.2f}")
             a["info"].set_text(f"{s.model} {s.state}\n{s.hz():.0f} Hz  n={s.count}  max={vmax[f]:.0f}")
+        # force bars
+        fmax = 1.0
+        for i, f in enumerate(FINGERS):
+            F = forces.get(f, np.zeros(3))
+            for j, comp in enumerate(("fx", "fy", "fz")):
+                bar_sets[comp][i].set_height(float(F[j]))
+            fmax = max(fmax, float(np.abs(F).max()) * 1.2, float(np.linalg.norm(F)) * 1.2)
+            bar_txt[i].set_text(f"|F| {np.linalg.norm(F):.2f} N" if f in forces else "")
+            bar_txt[i].set_y(fmax * 0.78)
+        mag_line.set_ydata([float(np.linalg.norm(forces.get(f, np.zeros(3)))) for f in FINGERS])
+        ax_bar.set_ylim(-fmax, fmax)
         # time series
         if hist_t:
             t_now = hist_t[-1]
@@ -609,7 +755,8 @@ def run_gui(hand, args):
         online = [hand.streams[f] for f in FINGERS if hand.streams[f].online]
         rates = ", ".join(f"{s.name} {s.hz():.0f}Hz" for s in online)
         cal = "  (calibrating…)" if now - state["last_cal"] < 3 else ""
-        title.set_text(f"Wuji Hand 2 fingertip tactile — {len(online)}/5 modules online — {rates}{cal}")
+        home = f"  |  joints enabled, home pose held (err {args._home.joint_error_deg():.1f}°)" if getattr(args, "_home", None) else ""
+        title.set_text(f"Wuji Hand 2 fingertip tactile — {len(online)}/5 modules online — {rates}{cal}{home}")
         return []
 
     ani = FuncAnimation(fig, update, interval=int(1000 / args.fps), cache_frame_data=False)
@@ -663,11 +810,22 @@ def main():
     ap.add_argument("--dump-only", action="store_true", help="print formats and 5 raw frames per finger, then exit")
     ap.add_argument("--headless", action="store_true", help="render N frames to a PNG instead of a window (tests)")
     ap.add_argument("--headless-frames", type=int, default=60)
+    ap.add_argument("--home", action="store_true", help="enable the joints and hold the open home pose (0 rad) while viewing")
+    ap.add_argument("--wuji-root", default=None, help="wuji-mjlab checkout; required with --home")
     args = ap.parse_args()
+    args._home = None
     if args.log == "auto":
         args.log = str(RUNS / f"tactile_{datetime.now():%Y-%m-%d_%H%M%S}.npz")
 
-    hand = FakeHand(args.hz) if args.no_hardware else RealHand(args.hand_sn, args.hz)
+    if args.no_hardware:
+        hand = FakeHand(args.hz)
+    elif args.home:
+        if not args.wuji_root:
+            sys.exit("--home needs --wuji-root <wuji-mjlab checkout>")
+        args._home = HomePose(args.wuji_root, args.hand_sn)
+        hand = RealHand(args.hand_sn, args.hz, sdk_hand=args._home.sdk_hand)
+    else:
+        hand = RealHand(args.hand_sn, args.hz)
     try:
         # collect a few frames before the GUI so the panels know the array sizes
         t0 = time.time()
@@ -694,6 +852,8 @@ def main():
             except Exception as e:
                 print(f"[log] not written: {e}")
         hand.close()
+        if args._home is not None:
+            args._home.close()
 
 
 if __name__ == "__main__":
