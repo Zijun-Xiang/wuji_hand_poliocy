@@ -10,13 +10,11 @@ set "PY=%REPO%\.venv-deploy\Scripts\python.exe"
   echo [setup] installing pyrealsense2 + opencv-python for the recording
   "%PY%" -m pip install pyrealsense2 opencv-python
 )
-for /f %%T in ('"%PY%" -c "from datetime import datetime; print(datetime.now().strftime('%%Y-%%m-%%d_%%H%%M%%S'))"') do set "STAMP=%%T"
-set "CAMOUT=%REPO%\runs\real_hand\cam_%STAMP%"
-echo [cam] recording to %CAMOUT%.mp4 (background, 150 s)
-start "camera" /B "%PY%" "%REPO%\deploy\camera_record.py" --seconds 150 --out "%CAMOUT%" --snap-every 3
+echo [cam] recording to runs\real_hand\cam_^<time^>.mp4 (background, 150 s)
+start "camera" /B /D "%REPO%" "%PY%" "%REPO%\deploy\camera_record.py" --seconds 150 --snap-every 3
 timeout /t 3 /nobreak >nul
 call "%~dp0play_loop.bat" --laps 2 --speed 1.0 --hold-s 2 --auto-start 25 %*
 echo.
-echo [done] camera file: %CAMOUT%.mp4
+echo [done] camera files in runs\real_hand\cam_*
 pause
 endlocal
