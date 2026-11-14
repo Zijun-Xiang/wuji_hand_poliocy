@@ -144,10 +144,14 @@ Payload format reported by the hand (firmware v2.5.1): `encoding: point_array`, 
 `fx, fy, fz` (i16 x 0.01 N) and `temperature` (i16 x 0.1 degC); taxel positions are given in
 metres in the sensor frame (`base_xyz` / `base_rpy` relative to the fingertip link).
 
-**Status on this hand (WH2KA01260824017, hw 0.2.0, fw v2.5.1):** `node_online` = 0xF7BDEF, i.e.
+**Status on this hand (WH2KA01260824017, hw 0.2.0, fw v2.5.1, same after the upgrade to v3.0.0 on 2026-11-13):** `node_online` = 0xF7BDEF, i.e.
 the four joint nodes of every finger are online but the tactile slot (node 5) of all five
 fingers is absent; `tactile_online_mask = 0`, the per-finger `tactile.*` parameters answer
 `InternalError`, and the `fingertip/*/data` streams deliver no frames. The master does know
 the sensor descriptors (it answers `fingertip_<finger>_info`), so the firmware supports the
 modules — they are just not present/answering on the bus. `deploy/windows/tactile_probe.bat`
-re-runs this diagnosis and writes `runs/tactile/probe_<time>.txt`.
+re-runs this diagnosis and writes `runs/tactile/probe_<time>.txt`. On v3.0.0 the SDK reports it explicitly:
+`NodeOfflineError: tactile node offline: <finger> (node not on the bus; check that the fingertip module is connected)`.
+The photos show a sensor flex in every fingertip, so this is a question for Wuji support —
+see `runs/tactile/WUJI_SUPPORT_SUMMARY.md`. Firmware upgrades: `deploy/windows/wuji_cli_check.bat` (install Wuji CLI,
+`doctor`, `upgrade --check`) and `wuji_upgrade.bat` (flash + re-probe; the CLI also offers `wuji upgrade rollback`).
