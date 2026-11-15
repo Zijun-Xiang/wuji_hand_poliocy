@@ -1,0 +1,85 @@
+# joint probe 2026-11-15T18:15:08
+wuji_sdk 2026.11.9
+scan: sn=WH2KA01260824017 ip=192.168.1.111:50001 transport=UDP
+connected WH2KA01260824017  fw=v3.0.0  hw=HwVersion(major=0, minor=2, patch=0)
+--- initial
+online_joints_count: 16
+get('node_online'): 507375
+node_online = 0x7BDEF
+  bus 0 thumb : S1 S2 S3 S4  tactile=off
+  bus 1 index : S1 S2 S3 S4  tactile=off
+  bus 2 middle: S1 S2 S3 S4  tactile=off
+  bus 3 ring  : S1 S2 S3 S4  tactile=off
+  bus 4 pinky : S1(OFF) S2(OFF) S3(OFF) S4(OFF)  tactile=off
+get('status'): 0
+get('health_status'): b'\x02\x10B\xf8\x01'
+get('input_voltage'): 12.313015937805176
+get('board_temperature'): 46.774192810058594
+get('error_status'): ERROR WujiException: Path not found: error_status
+get('thumb.S1.node_info'): b'\x01'
+get('thumb.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('thumb.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('thumb.S1.echo'): ERROR WujiException: Path not found: thumb.S1.echo
+get('index.S1.node_info'): b'\x01'
+get('index.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('index.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('index.S1.echo'): ERROR WujiException: Path not found: index.S1.echo
+get('middle.S1.node_info'): b'\x01'
+get('middle.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('middle.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('middle.S1.echo'): ERROR WujiException: Path not found: middle.S1.echo
+get('ring.S1.node_info'): b'\x01'
+get('ring.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('ring.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('ring.S1.echo'): ERROR WujiException: Path not found: ring.S1.echo
+get('pinky.S1.node_info'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.error_status'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.hw_version'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.echo'): ERROR WujiException: Path not found: pinky.S1.echo
+comm_diag.get: HandCommunicationDiagnostics(fingers=[5])
+  diag.comm = Hand2CommSummary(age_ms=16, tactile_online_mask=0, e2e_received=0, e2e_lost=0, e2e_reordered=0, e2e_duplicates=0, e2e_window_loss_x100=0, rpc_total=46, rpc_retries=0, rpc_timeouts=0, comm_get_failures=0, tactile_response_rate_pct=[5], tactile_timeout_total=[5], sdk_dropped=0)
+  diag.header = FrameHeader(seq=325919, timestamp_us=1794784511491499, frame_id='r_wrist')
+  diag.joints = [JointDiagnosticsEntry(nid=1, current=-0.017724993, vbus_v_fb=12.336116, mcu_temp_c_fb=48.100098, error_code_current=0x0000, comm_response_rate_pct=91, comm_timeout_total=0), JointDiagnosticsEntry(nid=2, current=-0.017102093, vbus_v_fb=12.301464, mcu_temp_c_fb=48.887295, error_code_current=0x0000, comm_response_rate_pct=100, comm_timeout_total=0), JointDiagnosticsEntry(nid=3, current=-0.018954065, vbus_v_fb=12.324566, mcu_temp_c_fb=54.467308, error_code_current=0x0000, comm_response_rate_pct=100, comm_timeout_total=0), JointDiagnosticsEntry(nid=4, current=-0.009458996, vbus_v_f
+  diag.num_joints = 16
+[reboot] sending reboot… (hand goes limp for ~15 s)
+[reboot] back after 10 s
+--- after reboot
+online_joints_count: 16
+get('node_online'): 507375
+node_online = 0x7BDEF
+  bus 0 thumb : S1 S2 S3 S4  tactile=off
+  bus 1 index : S1 S2 S3 S4  tactile=off
+  bus 2 middle: S1 S2 S3 S4  tactile=off
+  bus 3 ring  : S1 S2 S3 S4  tactile=off
+  bus 4 pinky : S1(OFF) S2(OFF) S3(OFF) S4(OFF)  tactile=off
+get('status'): 0
+get('health_status'): b'\x00\x00\x00\x00\x00'
+get('input_voltage'): 12.324566841125488
+get('board_temperature'): 42.90322494506836
+get('error_status'): ERROR WujiException: Path not found: error_status
+get('thumb.S1.node_info'): b'\x01'
+get('thumb.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('thumb.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('thumb.S1.echo'): ERROR WujiException: Path not found: thumb.S1.echo
+get('index.S1.node_info'): b'\x01'
+get('index.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('index.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('index.S1.echo'): ERROR WujiException: Path not found: index.S1.echo
+get('middle.S1.node_info'): b'\x01'
+get('middle.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('middle.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('middle.S1.echo'): ERROR WujiException: Path not found: middle.S1.echo
+get('ring.S1.node_info'): b'\x01'
+get('ring.S1.error_status'): ErrorStatus(warning=0x0000, deferred_stop=0x0000, immediate_stop=0x0000, fatal=0x0000)
+get('ring.S1.hw_version'): HwVersion(major=0, minor=2, patch=0)
+get('ring.S1.echo'): ERROR WujiException: Path not found: ring.S1.echo
+get('pinky.S1.node_info'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.error_status'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.hw_version'): ERROR NodeOfflineError: Node offline: the target node is not on the bus, so the request was never sent (check that the node is connected and powered; retrying will not help): Device returned error: Node offline (0x0015)
+get('pinky.S1.echo'): ERROR WujiException: Path not found: pinky.S1.echo
+comm_diag.get: HandCommunicationDiagnostics(fingers=[5])
+  diag.comm = Hand2CommSummary(age_ms=19, tactile_online_mask=0, e2e_received=42, e2e_lost=0, e2e_reordered=0, e2e_duplicates=0, e2e_window_loss_x100=0, rpc_total=53, rpc_retries=0, rpc_timeouts=0, comm_get_failures=0, tactile_response_rate_pct=[5], tactile_timeout_total=[5], sdk_dropped=0)
+  diag.header = FrameHeader(seq=1, timestamp_us=33911886, frame_id='r_wrist')
+  diag.joints = [JointDiagnosticsEntry(nid=1, current=-0.020835705, vbus_v_fb=12.324566, mcu_temp_c_fb=48.132923, error_code_current=0x0000, comm_response_rate_pct=100, comm_timeout_total=0), JointDiagnosticsEntry(nid=2, current=-0.017103953, vbus_v_fb=12.278362, mcu_temp_c_fb=49.046143, error_code_current=0x0000, comm_response_rate_pct=100, comm_timeout_total=0), JointDiagnosticsEntry(nid=3, current=-0.005722253, vbus_v_fb=12.347667, mcu_temp_c_fb=54.496746, error_code_current=0x0000, comm_response_rate_pct=100, comm_timeout_total=0), JointDiagnosticsEntry(nid=4, current=-0.014678596, vbus_v_
+  diag.num_joints = 16
+# written C:\Users\xiang\Documents\GitHub\wuji_hand_poliocy\runs\real_hand\joint_probe_2026-11-15_181508.txt
